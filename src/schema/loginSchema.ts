@@ -1,4 +1,3 @@
-import moment from "moment";
 import { validationRules } from "../helper/validation";
 import * as yup from 'yup';
 export const useLoginSchema = yup.object({

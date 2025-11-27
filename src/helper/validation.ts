@@ -1,4 +1,4 @@
-import { parsePhoneNumberFromString } from 'libphonenumber-js';
+// import { parsePhoneNumberFromString } from 'libphonenumber-js';
 import * as yup from 'yup';
 // import { emailRegex, phonenoPlusAdd } from '.';
 export const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
