@@ -11,7 +11,7 @@ import _ from 'lodash';
 
 import { Icon, type IconNameType } from '@/lib/Common/Icon';
 
-import type { FieldValues, Path, UseFormRegister } from 'react-hook-form';
+import type { FieldValues, Path } from 'react-hook-form';
 
 export interface InputFieldProps<TFormValues extends FieldValues>
   extends InputHTMLAttributes<HTMLInputElement> {
@@ -23,7 +23,7 @@ export interface InputFieldProps<TFormValues extends FieldValues>
   isRequired?: boolean;
   icon?: IconNameType;
   onIconClick?: () => void;
-  register?: UseFormRegister<TFormValues>;
+  register?: any;
   inputClass?: string;
   parentClassName?: string;
   inputParentClassName?: string;
@@ -131,7 +131,7 @@ export const InputField = forwardRef<
               name &&
               register(name, {
                 onChange,
-                setValueAs: (val) => (_.isString(val) ? val.trim() : val)
+                setValueAs: (val: any) => (_.isString(val) ? val.trim() : val)
               }))}
             maxLength={maxLength}
           />

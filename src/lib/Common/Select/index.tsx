@@ -15,10 +15,10 @@ import ReactSelect, {
 } from 'react-select';
 import CreatableSelect from 'react-select/creatable';
 
-import type { Appointment } from '@/lib/Common/Calender/types';
+// import type { Appointment } from '@/lib/Common/Calender/types';
 import Icon, { type IconNameType } from '@/lib/Common/Icon';
 import SectionLoader from '@/lib/Common/Loader/Spinner';
-import MultiSelectValueContainer from '@/lib/Common/MultiSelectValueContainer';
+// import MultiSelectValueContainer from '@/lib/Common/MultiSelectValueContainer';
 import CustomAsyncSelect from '@/lib/Common/Select/CustomAsyncSelect';
 
 export type OptionTypeGlobal = { label?: string; value: string };
@@ -29,7 +29,33 @@ export type DefaultStylesConfig<OptionType> = StylesConfig<
   boolean,
   GroupBase<OptionType>
 >;
-
+export interface Appointment {
+  id: string;
+  status: string;
+  created_at: string;
+  client: {
+    id: string;
+    user: {
+      profile_image: string;
+      first_name: string;
+      last_name: string;
+    };
+  };
+  therapist?: {
+    id: string;
+  };
+  therapy_type: {
+    name: string;
+    id: string;
+  };
+  slot: {
+    id: string;
+    start_time: string;
+    end_time: string;
+  };
+  payment_method?: string | null;
+  video_room_name: string;
+}
 export type SelectOption = {
   value: string | number;
   label: string;
@@ -181,9 +207,7 @@ export const Select = forwardRef(
     const mergedComponents = {
       Control: CustomIconControl,
       DropdownIndicator: CustomDropdownIndicator,
-      ValueContainer: isMulti
-        ? MultiSelectValueContainer
-        : CustomValueContainer,
+      ValueContainer: CustomValueContainer,
       ...components
     };
 

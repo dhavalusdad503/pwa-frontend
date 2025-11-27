@@ -1,4 +1,4 @@
-import { type ChangeEventHandler, type JSX } from 'react';
+import { type JSX } from 'react';
 
 import clsx from 'clsx';
 
@@ -36,8 +36,8 @@ export const InputFileUploadField = ({
   infoClass,
   infoIcon = false
 }: InputFileUploadFieldProps): JSX.Element => {
-  const handleChange = (e: ChangeEventHandler<HTMLInputElement>) => {
-    onFileSelect(e?.target?.files);
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    onFileSelect(e.target.files);
   };
 
   return (
