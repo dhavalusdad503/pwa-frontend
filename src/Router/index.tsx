@@ -1,14 +1,17 @@
 import { Suspense } from 'react';
+
 import {
   type RouteObject,
   RouterProvider,
   createBrowserRouter
 } from 'react-router-dom';
+
+import { ErrorBoundary } from '@/components/common';
+import Layout from '@/components/Layout';
+import { ROUTES } from '@/constant/routesPath';
+
 import AuthenticateRoute from './RouteGuard/AuthenticateRoute';
 import UnAuthenticateRoute from './RouteGuard/UnAuthenticateRoute';
-import { ROUTES } from '@/constant/routesPath';
-import Layout from '@/components/Layout';
-import { ErrorBoundary } from '@/components/common';
 
 const applySuspense = (routes: RouteObject[]): RouteObject[] => {
   return routes.map((route) => ({
@@ -44,7 +47,9 @@ export const RoutesArray: RouteObject[] = applySuspense([
       );
     } else if (route.routeType === 'un-authenticate') {
       routeObj['element'] = (
-        <UnAuthenticateRoute>{route.element}</UnAuthenticateRoute>
+        <Layout>
+          <UnAuthenticateRoute>{route.element}</UnAuthenticateRoute>
+        </Layout>
       );
     }
 

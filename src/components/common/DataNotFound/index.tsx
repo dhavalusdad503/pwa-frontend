@@ -1,5 +1,6 @@
-import Icon from '@/lib/Common/Icon';
 import clsx from 'clsx';
+
+import Icon from '@/lib/Common/Icon';
 
 export interface DataNotFoundProps {
   parentClassName?: string;

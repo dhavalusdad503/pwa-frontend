@@ -10,19 +10,9 @@ import {
   type Path
 } from 'react-hook-form';
 
-// import { DATE_FORMATS } from '@/helper/dateUtils';
+import { DATE_FORMATS } from '@/helper/dateUtils';
 import Icon from '@/lib/Common/Icon';
-const DATE_FORMATS = {
-  LONG: 'MMMM D, YYYY', // e.g., April 16, 2024
-  SHORT: 'MM/DD/YYYY', // e.g., 04/16/2024
-  TIME: 'h:mm A', // e.g., 3:45 PM
-  FULL: 'MMMM D, YYYY h:mm A', // e.g., April 16, 2024 3:45 PM
-  YEAR: 'YYYY',
-  DEFAULT: 'YYYY-MM-DD HH:mm:ss',
-  WITH_TZ: 'YYYY-MM-DD HH:mm:ss z',
-  DATE_SHORT_TIME: 'DD/MM/yyyy HH:mm',
-  SHORT_MONTH_AND_YEAR: 'MMM YYYY'
-};
+
 interface TimeSelectProps<TFieldValues extends FieldValues> {
   label?: string;
   parentClassName?: string;
@@ -192,10 +182,10 @@ export const TimeSelect = <TFieldValues extends FieldValues>({
                 <DatePicker
                   {...restProps}
                   selected={value ? toDisplayDate(value) : null}
-                  // {...(minDate && { minDate: toDisplayDate(minDate) })}
-                  // {...(maxDate && { maxDate: toDisplayDate(maxDate) })}
-                  // {...(minTime && { minTime: toDisplayDate(minTime) })}
-                  // {...(maxTime && { maxTime: toDisplayDate(maxTime) })}
+                  {...(minDate && { minDate: toDisplayDate(minDate) })}
+                  {...(maxDate && { maxDate: toDisplayDate(maxDate) })}
+                  {...(minTime && { minTime: toDisplayDate(minTime) })}
+                  {...(maxTime && { maxTime: toDisplayDate(maxTime) })}
                   onChange={(val) => {
                     onChangeCallback(toUtcDate(val));
                     handleDateChange(toUtcDate(val));
@@ -208,9 +198,7 @@ export const TimeSelect = <TFieldValues extends FieldValues>({
                   timeCaption="Time"
                   isClearable={isClearable}
                   filterTime={filterTime}
-                  selectsMultiple={undefined}
-                  selectsRange={undefined}
-                  // isLoading={isLoading}
+                  isLoading={isLoading}
                   showPopperArrow={false}
                   dateFormat="h:mm aa"
                   className={`px-4 pr-8 py-2.5 border border-solid border-surface text-blackdark rounded-10px focus:outline-primary focus:outline-1 w-full placeholder:text-primarygray truncate ${className} ${error ? '!border-red-500' : ''}
@@ -229,10 +217,10 @@ export const TimeSelect = <TFieldValues extends FieldValues>({
             <DatePicker
               {...restProps}
               selected={toDisplayDate(startDate)}
-              // {...(minDate && { minDate: toDisplayDate(minDate) })}
-              // {...(maxDate && { maxDate: toDisplayDate(maxDate) })}
-              // {...(minTime && { minTime: toDisplayDate(minTime) })}
-              // {...(maxTime && { maxTime: toDisplayDate(maxTime) })}
+              {...(minDate && { minDate: toDisplayDate(minDate) })}
+              {...(maxDate && { maxDate: toDisplayDate(maxDate) })}
+              {...(minTime && { minTime: toDisplayDate(minTime) })}
+              {...(maxTime && { maxTime: toDisplayDate(maxTime) })}
               onChange={(val) => handleDateChange(toUtcDate(val))}
               showTimeSelect
               showTimeSelectOnly
@@ -242,7 +230,7 @@ export const TimeSelect = <TFieldValues extends FieldValues>({
               timeCaption="Time"
               isClearable={isClearable}
               filterTime={filterTime}
-              // isLoading={isLoading}
+              isLoading={isLoading}
               showPopperArrow={false}
               dateFormat="h:mm aa"
               className={`px-4 pr-8 py-2.5 border border-solid border-surface text-blackdark rounded-10px focus:outline-primary focus:outline-1 w-full placeholder:text-primarygray truncate ${className} ${error ? '!border-red-500' : ''}

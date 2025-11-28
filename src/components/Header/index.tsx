@@ -1,42 +1,42 @@
-import { ROUTES } from '@/constant/routesPath';
-import { dispatchClearUser } from '@/redux/dispatch/user.dispatch';
-import Button from '@/lib/Common/Button';
-import clsx from 'clsx';
-import { NavLink, matchPath, useLocation } from 'react-router-dom';
+// import { ROUTES } from '@/constant/routesPath';
 
-interface MenuItems {
-  label: string;
-  path: string;
-}
+// interface MenuItems {
+//   label: string;
+//   path: string;
+// }
 
-const menuItems: MenuItems[] = [
-  {
-    label: 'Dashboard',
-    path: ROUTES.DEFAULT.path
-  },
-  {
-    label: 'Home',
-    path: ROUTES.LOGIN.path
-  }
-  //   {
-  //     label: 'Category',
-  //     path: ROUTES.CATEGORY.path
-  //   },
-  //   { label: 'User', path: ROUTES.USER.path }
-];
+// const menuItems: MenuItems[] = [
+//   {
+//     label: 'Dashboard',
+//     path: ROUTES.DEFAULT.path
+//   },
+//   {
+//     label: 'Login',
+//     path: ROUTES.LOGIN.path
+//   },
+//   {
+//     label: 'Home Visit',
+//     path: ROUTES.HOME_VISIT.path
+//   }
+//   //   {
+//   //     label: 'Category',
+//   //     path: ROUTES.CATEGORY.path
+//   //   },
+//   //   { label: 'User', path: ROUTES.USER.path }
+// ];
 
 const Header = () => {
-  const location = useLocation();
+  // const location = useLocation();
 
-  const routeData = Object.values(ROUTES).find((route) =>
-    matchPath(route.path, location.pathname)
-  );
+  // const routeData = Object.values(ROUTES).find((route) =>
+  //   matchPath(route.path, location.pathname)
+  // );
 
   return (
     <>
       <nav className="border-gray-200 bg-gray-500">
         <div className="flex flex-wrap items-center mx-auto p-4">
-          <ul className="flex gap-3">
+          {/* <ul className="flex gap-3">
             {menuItems.map((item) => (
               <li key={item.path}>
                 <NavLink
@@ -51,18 +51,12 @@ const Header = () => {
                 </NavLink>
               </li>
             ))}
-          </ul>
-          <Button
-            variant="filled"
-            // className="ml-auto bg-red-500"
-            onClick={() => dispatchClearUser()}>
-            Logout
-          </Button>
+          </ul> */}
         </div>
       </nav>
-      <div className="p-3 bg-green-500 text-white">
+      {/* <div className="p-3 bg-green-500 text-white">
         <h3 className="text-lg font-bold">{routeData?.headerName || 'Home'}</h3>
-      </div>
+      </div> */}
     </>
   );
 };

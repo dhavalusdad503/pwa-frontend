@@ -1,16 +1,23 @@
-import { useForm, type SubmitHandler } from 'react-hook-form';
-import { useLoginSchema, type LoginSchemaType } from '../../schema/loginSchema';
 import { yupResolver } from '@hookform/resolvers/yup';
+import { useForm, type SubmitHandler } from 'react-hook-form';
+import { useNavigate } from 'react-router-dom';
+
+import { useLogin } from '@/api/auth';
+import { getDefaultRouteByRole } from '@/config/defaultRoutes';
+import Button from '@/lib/Common/Button';
 import Icon from '@/lib/Common/Icon';
 import InputField from '@/lib/Common/Input';
 import PasswordField from '@/lib/Common/PasswordField';
-import Button from '@/lib/Common/Button';
+import { dispatchSetUser } from '@/redux/dispatch/user.dispatch';
 
+import { useLoginSchema, type LoginSchemaType } from '../../schema/loginSchema';
+
+const defaultValues = {
+  email: '',
+  password: ''
+};
 const Login = () => {
-  const defaultValues = {
-    email: '',
-    password: ''
-  };
+  const Navigate = useNavigate();
   const {
     formState: { errors },
     handleSubmit,
@@ -20,10 +27,19 @@ const Login = () => {
     defaultValues: defaultValues,
     resolver: yupResolver(useLoginSchema)
   });
-  const handleFormSubmit: SubmitHandler<LoginSchemaType> = async (data) => {
-    console.log('Form Data', data);
+  const { mutateAsync: login, isPending: isLoginPending } = useLogin();
+  const handleFormSubmit: SubmitHandler<LoginSchemaType> = async (
+    credentials
+  ) => {
+    const response = await login(credentials);
+    const { success, data } = response;
+    if (success && data) {
+      const { user, token } = data;
+      dispatchSetUser({ ...user, token });
+      console.log('check', getDefaultRouteByRole(user?.role?.name));
+      Navigate(getDefaultRouteByRole(user?.role?.name));
+    }
   };
-  const isLoading = false;
   return (
     <>
       <div className="max-w-438px w-full m-auto">
@@ -82,28 +98,28 @@ const Login = () => {
             <Button
               type="submit"
               variant="filled"
-              // isLoading={isLoading}
-              title={isLoading ? 'Signing In...' : 'Sign In'}
+              isLoading={isLoginPending}
+              title={isLoginPending ? 'Signing In...' : 'Sign In'}
               className="w-full rounded-10px ! !font-bold !leading-5"
-              // isDisabled={isLoading}
+              isDisabled={isLoginPending}
               onClick={handleSubmit(handleFormSubmit)}
             />
 
-            <div className="relative">
+            {/* <div className="relative">
               <div className="h-1px bg-primarylight w-full my-2.5" />
               <div className="absolute left-2/4 -translate-x-2/4 bg-white rounded-full px-3.5 -top-0.5">
                 <span className="text-xl leading-4">or</span>
               </div>
-            </div>
+            </div> */}
 
-            <Button
+            {/* <Button
               variant="outline"
               title="Sign in with Organization (SSO)"
               className="w-full rounded-10px !font-semibold !border-primarylight"
               onClick={handleSubmit(handleFormSubmit)}
               icon={<Icon name="amd" />}
               isIconFirst
-            />
+            /> */}
           </div>
         </div>
       </div>

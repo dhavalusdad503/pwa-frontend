@@ -1,16 +1,38 @@
-import { type PropsWithChildren, Suspense } from 'react';
-import { useSelector } from 'react-redux';
-import { Navigate } from 'react-router-dom';
+import React, { type PropsWithChildren, Suspense } from 'react';
 
-import { currentUser } from '../../redux/ducks/user';
-import { ROUTES } from '@/constant/routesPath';
+import { Navigate, useLocation } from 'react-router-dom';
+
+import { useRoleBasedRouting } from '@/hooks/useRoleBasedRouting';
 import SectionLoader from '@/lib/Common/Loader/Spinner';
 
 const AuthenticateRoute: React.FC<PropsWithChildren> = ({ children }) => {
-  const { isLoggedIn } = useSelector(currentUser);
+  // const { isAuthenticated } = useAuthState();
+  const location = useLocation();
+  const { isRouteAccessible, getDefaultRoute } = useRoleBasedRouting();
+  // const { role } = useSelector(currentUser);
+  console.log({ isRouteAccessible });
+  // if (!isAuthenticated) {
+  //   if (role === UserRole.CLIENT) {
+  //     return <Navigate to={ROUTES.LOGIN.path} replace />;
+  //   } else if (role === UserRole.THERAPIST) {
+  //     return <Navigate to={ROUTES.THERAPIST_LOGIN.path} replace />;
+  //   } else if (role === UserRole.ADMIN) {
+  //     return <Navigate to={ROUTES.ADMIN_LOGIN.path} replace />;
+  //   } else if (role === UserRole.BACKOFFICE) {
+  //     return <Navigate to={ROUTES.ADMIN_LOGIN.path} replace />;
+  //   }
+  //   return <Navigate to={ROUTES.LOGIN.path} replace />;
+  // }
 
-  if (!isLoggedIn) {
-    return <Navigate to={ROUTES.DEFAULT.path} />;
+  const normalizedPath = location.pathname.replace(
+    /\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/gi,
+    '/:id'
+  );
+
+  // Check if current route is accessible for user's role
+  if (!isRouteAccessible(normalizedPath)) {
+    // Redirect to user's default route if they don't have access to current route
+    return <Navigate to={getDefaultRoute()} />;
   }
 
   return <Suspense fallback={<SectionLoader />}>{children}</Suspense>;
