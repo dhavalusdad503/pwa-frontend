@@ -1,4 +1,5 @@
 import type { PropsWithChildren } from 'react';
+
 import Header from '@/components/Header';
 
 const Layout = ({ children }: PropsWithChildren) => (

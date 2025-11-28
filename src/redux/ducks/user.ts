@@ -1,37 +1,53 @@
 import { type PayloadAction, createSlice } from '@reduxjs/toolkit';
 
-export type UserState = {
-  id: string;
-  name: string;
-  email: string;
-  phone: string;
-  isLoggedIn: boolean;
-};
+import { User } from '@/api/types/user.dto';
 
-const initialState: UserState = {
+// const initialState: User = {
+//   id: '',
+//   first_name: '',
+//   last_name: '',
+//   email: '',
+//   name: '',
+//   role: '',
+//   profile_image: '',
+//   created_at: '',
+//   updated_at: '',
+//   last_login: '',
+//   tenant_id: '',
+//   accessToken: '',
+//   timezone: 'UTC',
+//   permissions: []
+// };
+const initialState: User = {
   id: '',
-  name: '',
+  firstName: '',
+  lastName: '',
   email: '',
-  phone: '',
-  isLoggedIn: false
+  role: {
+    id: '',
+    name: '',
+    slug: ''
+  },
+  authProvider: '',
+  token: ''
 };
 
 const user = createSlice({
-  name: 'user', // unique name to slice
+  name: 'user',
   initialState,
   reducers: {
-    setUser: (state, action: PayloadAction<Partial<UserState>>) => {
+    setUser: (state, action: PayloadAction<Partial<User> | null>) => {
       return { ...state, ...action.payload };
     },
-    clearUser: () => {
-      return {
-        ...initialState
-      };
-    }
+    clearUser: () =>
+      // state,
+      // action: PayloadAction<{ isRedirect: boolean; isForceClear: boolean }>
+      {
+        return initialState;
+      }
   }
 });
 
-export const currentUser = (state: { user: UserState }) => state.user; // export slice name call to reduce code in useSelector
-
-export const { setUser, clearUser } = user.actions; // export all action
+export const currentUser = (state: { user: User }) => state.user;
+export const { setUser, clearUser } = user.actions;
 export default user.reducer;

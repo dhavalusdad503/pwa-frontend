@@ -7,11 +7,10 @@ import {
 } from 'react';
 
 import clsx from 'clsx';
-import _ from 'lodash';
 
 import { Icon, type IconNameType } from '@/lib/Common/Icon';
 
-import type { FieldValues, Path } from 'react-hook-form';
+import type { FieldValues, Path, UseFormRegister } from 'react-hook-form';
 
 export interface InputFieldProps<TFormValues extends FieldValues>
   extends InputHTMLAttributes<HTMLInputElement> {
@@ -23,7 +22,7 @@ export interface InputFieldProps<TFormValues extends FieldValues>
   isRequired?: boolean;
   icon?: IconNameType;
   onIconClick?: () => void;
-  register?: any;
+  register?: UseFormRegister<TFormValues>;
   inputClass?: string;
   parentClassName?: string;
   inputParentClassName?: string;
@@ -126,13 +125,8 @@ export const InputField = forwardRef<
             placeholder={placeholder}
             value={value}
             autoComplete={autoComplete}
-            onChange={onChange}
-            {...(register &&
-              name &&
-              register(name, {
-                onChange,
-                setValueAs: (val: any) => (_.isString(val) ? val.trim() : val)
-              }))}
+            onChange={isDisabled ? undefined : onChange}
+            {...(register && name && register(name, { onChange }))}
             maxLength={maxLength}
           />
 
