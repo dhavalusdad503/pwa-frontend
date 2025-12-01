@@ -1,32 +1,35 @@
+import QueryProvider from '@api/QueryProvider';
+import { ErrorBoundary } from '@components/common';
+import { Providers } from '@redux/Provider';
+import Route from '@router/index';
 import { ToastContainer } from 'react-toastify';
 
-import QueryProvider from '@/api/QueryProvider';
-import { Providers } from '@/redux/Provider';
-import Router from '@/Router';
+const PreRoute = () => {
+  return <Route />;
+};
 
 function App() {
   return (
-    <QueryProvider>
-      <Providers>
-        {/* <SocketProvider> */}
-        <ToastContainer
-          position="top-right"
-          autoClose={5000}
-          hideProgressBar={false}
-          newestOnTop={false}
-          closeOnClick={false}
-          rtl={false}
-          pauseOnFocusLoss
-          draggable
-          pauseOnHover
-          theme="light"
-          style={{ zIndex: 10000 }}
-        />
-        <Router />
-        {/* <PreRoute /> */}
-        {/* </SocketProvider> */}
-      </Providers>
-    </QueryProvider>
+    <ErrorBoundary>
+      <QueryProvider>
+        <Providers>
+          <ToastContainer
+            position="top-right"
+            autoClose={5000}
+            hideProgressBar={false}
+            newestOnTop={false}
+            closeOnClick={false}
+            rtl={false}
+            pauseOnFocusLoss
+            draggable
+            pauseOnHover
+            theme="light"
+            style={{ zIndex: 10000 }}
+          />
+          <PreRoute />
+        </Providers>
+      </QueryProvider>
+    </ErrorBoundary>
   );
 }
 

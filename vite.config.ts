@@ -53,7 +53,21 @@ export default defineConfig({
   ],
   resolve: {
     alias: {
-      '@': path.resolve(__dirname, './src')
+      '@': path.resolve(__dirname, './src'),
+      '@lib': path.resolve(__dirname, './src/lib'), // ['src/lib/*'],
+      '@components': path.resolve(__dirname, './src/components'), // ['src/components/*'],
+      '@features': path.resolve(__dirname, './src/features'), // ['src/features/*'],
+      '@constant': path.resolve(__dirname, './src/constant'), // ['src/constant/*'],
+      '@api': path.resolve(__dirname, './src/api'), // ['src/api/*'],
+      '@assets': path.resolve(__dirname, './src/assets'), // ['src/assets/*'],
+      '@config': path.resolve(__dirname, './src/config'), // ['src/config/*'],
+      '@helper': path.resolve(__dirname, './src/helper'), // ['src/helper/*'],
+      '@hooks': path.resolve(__dirname, './src/hooks'), // ['src/hooks/*'],
+      '@redux': path.resolve(__dirname, './src/redux'), // ['src/redux/*'],
+      '@pages': path.resolve(__dirname, './src/pages'), // ['src/pages/*'],
+      '@styles': path.resolve(__dirname, './src/styles'), // ['src/styles/*'],
+      '@schema': path.resolve(__dirname, './src/schema'), // ['src/schema/*'],
+      '@router': path.resolve(__dirname, './src/router') // ['src/router/*']
     }
   }
 });

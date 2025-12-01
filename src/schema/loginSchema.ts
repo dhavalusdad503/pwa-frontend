@@ -1,6 +1,6 @@
+import { validationRules } from '@helper/validation';
 import * as yup from 'yup';
 
-import { validationRules } from '../helper/validation';
 export const imageMimeRegex = /^image\/.*/;
 
 export const useLoginSchema = yup.object({
@@ -49,4 +49,3 @@ export const useLoginSchema = yup.object({
   //     }),
 });
 export type LoginSchemaType = yup.InferType<typeof useLoginSchema>;
-

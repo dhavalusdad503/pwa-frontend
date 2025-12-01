@@ -1,7 +1,6 @@
+import { ROUTES } from '@constant/routesPath';
+import Button from '@lib/Common/Button';
 import { useNavigate } from 'react-router-dom';
-
-import { ROUTES } from '@/constant/routesPath';
-import Button from '@/lib/Common/Button';
 
 import AppointmentCard, { type AppointmentCardProps } from './AppointmentCard';
 

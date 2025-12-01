@@ -1,6 +1,5 @@
+import { validationRules } from '@helper/validation';
 import * as yup from 'yup';
-
-import { validationRules } from '@/helper/validation';
 
 export const newShiftSchema = yup.object().shape({
   start_time: validationRules

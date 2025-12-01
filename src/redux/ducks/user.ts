@@ -1,24 +1,21 @@
+import { tokenStorage } from '@api/tokenStorage';
 import { type PayloadAction, createSlice } from '@reduxjs/toolkit';
 
-import { User } from '@/api/types/user.dto';
+export type UserState = {
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  role: {
+    id: string;
+    name: string;
+    slug: string;
+  };
+  authProvider: string;
+  token?: string | null;
+};
 
-// const initialState: User = {
-//   id: '',
-//   first_name: '',
-//   last_name: '',
-//   email: '',
-//   name: '',
-//   role: '',
-//   profile_image: '',
-//   created_at: '',
-//   updated_at: '',
-//   last_login: '',
-//   tenant_id: '',
-//   accessToken: '',
-//   timezone: 'UTC',
-//   permissions: []
-// };
-const initialState: User = {
+const initialState: UserState = {
   id: '',
   firstName: '',
   lastName: '',
@@ -29,25 +26,38 @@ const initialState: User = {
     slug: ''
   },
   authProvider: '',
-  token: ''
+  token: undefined
 };
 
 const user = createSlice({
   name: 'user',
   initialState,
   reducers: {
-    setUser: (state, action: PayloadAction<Partial<User> | null>) => {
+    setUser: (state, action: PayloadAction<Partial<UserState> | null>) => {
       return { ...state, ...action.payload };
     },
-    clearUser: () =>
-      // state,
-      // action: PayloadAction<{ isRedirect: boolean; isForceClear: boolean }>
-      {
-        return initialState;
+    clearUser: (
+      state,
+      action: PayloadAction<{
+        isRedirect: boolean;
+        isForceClear: boolean;
+      }>
+    ) => {
+      if (action.payload.isForceClear) {
+        tokenStorage.clearTokens();
       }
+      if (action.payload.isRedirect) {
+        return state;
+      }
+      return {
+        ...initialState,
+        token: undefined
+      };
+    }
   }
 });
 
-export const currentUser = (state: { user: User }) => state.user;
+export const currentUser = (state: { user: UserState }) => state.user;
+
 export const { setUser, clearUser } = user.actions;
 export default user.reducer;

@@ -1,4 +1,4 @@
-import { type AxiosError, isAxiosError } from 'axios';
+import { AxiosError, isAxiosError } from 'axios';
 import _ from 'lodash';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';

@@ -1,15 +1,14 @@
+import { useLogin } from '@api/auth';
+import { tokenStorage } from '@api/tokenStorage';
+import { getDefaultRouteByRole } from '@config/defaultRoutes';
 import { yupResolver } from '@hookform/resolvers/yup';
+import Button from '@lib/Common/Button';
+import Icon from '@lib/Common/Icon';
+import InputField from '@lib/Common/Input';
+import PasswordField from '@lib/Common/PasswordField';
+import { dispatchSetUser } from '@redux/dispatch/user.dispatch';
 import { useForm, type SubmitHandler } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
-
-import { useLogin } from '@/api/auth';
-import { tokenStorage } from '@/api/tokenStorage';
-import { getDefaultRouteByRole } from '@/config/defaultRoutes';
-import Button from '@/lib/Common/Button';
-import Icon from '@/lib/Common/Icon';
-import InputField from '@/lib/Common/Input';
-import PasswordField from '@/lib/Common/PasswordField';
-import { dispatchSetUser } from '@/redux/dispatch/user.dispatch';
 
 import { useLoginSchema, type LoginSchemaType } from '../../schema/loginSchema';
 
@@ -18,7 +17,7 @@ const defaultValues = {
   password: ''
 };
 const Login = () => {
-  const Navigate = useNavigate();
+  const navigate = useNavigate();
   const {
     formState: { errors },
     handleSubmit,
@@ -29,6 +28,7 @@ const Login = () => {
     resolver: yupResolver(useLoginSchema)
   });
   const { mutateAsync: login, isPending: isLoginPending } = useLogin();
+
   const handleFormSubmit: SubmitHandler<LoginSchemaType> = async (
     credentials
   ) => {
@@ -39,10 +39,11 @@ const Login = () => {
       if (token) {
         tokenStorage.setTokens({ accessToken: token });
         dispatchSetUser({ ...user, token });
-        Navigate(getDefaultRouteByRole(user?.role?.name));
+        navigate(getDefaultRouteByRole(user?.role?.name));
       }
     }
   };
+
   return (
     <>
       <div className="max-w-438px w-full m-auto">

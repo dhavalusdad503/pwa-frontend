@@ -3,12 +3,15 @@ export const USER_ROLE = {
   SUPERVISOR: 'SUPERVISOR',
   ADMIN: 'ADMIN'
 } as const;
+
 export type UserRole = (typeof USER_ROLE)[keyof typeof USER_ROLE];
+
 export interface RoleType {
   id: string;
   name: string;
   slug: string;
 }
+
 export interface User {
   id: string;
   firstName: string;

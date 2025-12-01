@@ -1,4 +1,3 @@
-// AppointmentCard.jsx
 export interface AppointmentCardProps {
   name: string;
   date: string;

@@ -1,6 +1,6 @@
-import { useMutation } from '@/api';
-import { axiosPost } from '@/api/axios';
-import { shiftQueryKey } from '@/api/common/shift.querykey';
+import { axiosPost } from '@api/axios';
+import { shiftQueryKey } from '@api/common/shift.querykey';
+import { useMutation } from '@api/index';
 
 export const useCreateShift = () => {
   return useMutation({
