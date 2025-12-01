@@ -1,6 +1,9 @@
 import { yupResolver } from '@hookform/resolvers/yup';
 import { SubmitHandler, useForm } from 'react-hook-form';
+import { useNavigate } from 'react-router-dom';
 
+import { useCreateShift } from '@/api/newShift';
+import { ROUTES } from '@/constant/routesPath';
 import Button from '@/lib/Common/Button';
 import InputField from '@/lib/Common/Input';
 import Select from '@/lib/Common/Select';
@@ -8,6 +11,7 @@ import TextArea from '@/lib/Common/Textarea';
 import TimeSelect from '@/lib/Common/TimeSelect';
 import { newShiftSchema, type NewShiftSchemaType } from '@/schema/loginSchema';
 import type { OptionTypeGlobal } from '@/types';
+
 const defaultValues = {
   start_time: '',
   end_time: '',
@@ -31,6 +35,7 @@ const typeOptions: OptionTypeGlobal[] = [
   { label: 'Half Day', value: 'half_day' }
 ];
 const Shift = () => {
+  const Navigate = useNavigate();
   const methods = useForm<NewShiftSchemaType>({
     mode: 'onChange',
     shouldFocusError: true,
@@ -47,10 +52,16 @@ const Shift = () => {
     getValues,
     control
   } = methods;
-  console.log('value', getValues('type'));
-
-  const handleFormSubmit: SubmitHandler<NewShiftSchemaType> = async (data) => {
-    console.log('Form Data', data);
+  const { mutateAsync: createShift, isPending: isCreatePending } =
+    useCreateShift();
+  const handleFormSubmit: SubmitHandler<NewShiftSchemaType> = async (
+    credentials
+  ) => {
+    const response = await createShift(credentials);
+    const { success } = response;
+    if (success) {
+      Navigate(ROUTES.HOME_VISIT.path);
+    }
   };
   return (
     <>
@@ -309,10 +320,10 @@ const Shift = () => {
             <Button
               type="submit"
               variant="filled"
-              // isLoading={isLoading}
-              title="Submit"
+              isLoading={isCreatePending}
+              title={isCreatePending ? 'Submitting...' : 'Submit'}
               className="w-sm rounded-10px ! !font-bold !leading-5"
-              // isDisabled={isLoading}
+              isDisabled={isCreatePending}
               onClick={handleSubmit(handleFormSubmit)}
             />
           </div>

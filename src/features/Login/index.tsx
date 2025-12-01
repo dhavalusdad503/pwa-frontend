@@ -36,7 +36,6 @@ const Login = () => {
     if (success && data) {
       const { user, token } = data;
       dispatchSetUser({ ...user, token });
-      console.log('check', getDefaultRouteByRole(user?.role?.name));
       Navigate(getDefaultRouteByRole(user?.role?.name));
     }
   };

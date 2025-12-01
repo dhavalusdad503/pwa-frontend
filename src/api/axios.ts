@@ -158,8 +158,8 @@ axiosInstance.interceptors.response.use(
           }
         );
 
-        const { accessToken, refreshToken: newRefreshToken } =
-          response.data.data;
+        const { token: accessToken, refreshToken: newRefreshToken } =
+          response.data;
 
         // Store new tokens - pass as object!
         tokenStorage.setTokens({ accessToken });

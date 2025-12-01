@@ -1,17 +1,33 @@
-import { useQuery } from '@/api';
-import { axiosGet } from '@/api/axios';
+import { useMutation } from '@/api';
+import { axiosPost } from '@/api/axios';
+import { shiftQueryKey } from '@/api/common/shift.querykey';
 
-export const useClientTherapistAppointments = (params?: object) => {
-  return useQuery({
-    queryKey: calendarQueryKeys.clientTherapistAppointments(params),
-    queryFn: async () => {
-      const response = await axiosGet(
-        `/appointments/client-therapist-appointments`,
-        {
-          params
-        }
-      );
+// For login auth operations
+export const useCreateShift = () => {
+  return useMutation({
+    mutationKey: shiftQueryKey.createShift(),
+    mutationFn: async (data: object) => {
+      const response = await axiosPost('/visit/create', data);
       return response.data;
-    }
+    },
+    showToast: true
   });
 };
+// export const useLogin = (
+//   options?: UseMutationOptions<LoginResponse, AxiosError, LoginCredentials>
+// ) => {
+//   return useMutation({
+//     mutationKey: authQueryKey.login(),
+//     mutationFn: async (
+//       credentials: LoginCredentials
+//     ): Promise<LoginResponse> => {
+//       const response = await axiosPost(`/auth/login`, {
+//         data: credentials
+//       });
+
+//       return response.data;
+//     },
+//     showToast: true,
+//     ...options
+//   });
+// };
