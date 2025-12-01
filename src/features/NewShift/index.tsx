@@ -16,7 +16,7 @@ import type { OptionTypeGlobal } from '@/types';
 const defaultValues = {
   start_time: '',
   end_time: '',
-  serviceType: { value: null, label: null },
+  serviceType: undefined,
   notes: '', // Default value provided
   patientName: '', // Default value provided
   address: '' // Default value provided
