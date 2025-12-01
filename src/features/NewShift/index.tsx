@@ -1,4 +1,5 @@
 import { yupResolver } from '@hookform/resolvers/yup';
+import moment from 'moment';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 
@@ -9,22 +10,16 @@ import InputField from '@/lib/Common/Input';
 import Select from '@/lib/Common/Select';
 import TextArea from '@/lib/Common/Textarea';
 import TimeSelect from '@/lib/Common/TimeSelect';
-import { newShiftSchema, type NewShiftSchemaType } from '@/schema/loginSchema';
+import { newShiftSchema, NewShiftSchemaType } from '@/schema/shiftSchema';
 import type { OptionTypeGlobal } from '@/types';
 
 const defaultValues = {
   start_time: '',
   end_time: '',
-  type: null,
-  notes: '',
-  image: null,
-  client_present: false,
-  medication_reviewed: false,
-  follow_up: false,
-  safety_check: false,
-  attestation: false,
-  name: '',
-  attestation_image: null
+  serviceType: { value: null, label: null },
+  notes: '', // Default value provided
+  patientName: '', // Default value provided
+  address: '' // Default value provided
 };
 
 const typeOptions: OptionTypeGlobal[] = [
@@ -57,7 +52,19 @@ const Shift = () => {
   const handleFormSubmit: SubmitHandler<NewShiftSchemaType> = async (
     credentials
   ) => {
-    const response = await createShift(credentials);
+    const {
+      end_time: endTime,
+      start_time: startTime,
+      ...tempData
+    } = credentials;
+
+    const response = await createShift({
+      ...tempData,
+      end_time: moment(endTime).toISOString(),
+      start_time: moment(startTime).toISOString(),
+      OrgId: 'f94d9911-950e-413d-83af-9dad6534ceee',
+      PatientId: '10c385d1-8d61-4571-bfca-4bdd28291a7c'
+    });
     const { success } = response;
     if (success) {
       Navigate(ROUTES.HOME_VISIT.path);
@@ -107,20 +114,20 @@ const Shift = () => {
               className="w-full"
               isClearable={true}
               value={
-                getValues('type')
+                getValues('serviceType')
                   ? ({
-                      value: getValues('type.value'),
-                      label: getValues('type.label')
+                      value: getValues('serviceType.value'),
+                      label: getValues('serviceType.label')
                     } as OptionTypeGlobal)
                   : null
               }
               placeholder="Select Type"
               onChange={(data) => {
-                setValue('type', data as OptionTypeGlobal, {
+                setValue('serviceType', data as OptionTypeGlobal, {
                   shouldValidate: true
                 });
               }}
-              name="type"
+              name="serviceType"
               options={typeOptions}
               StylesConfig={{
                 control: () => ({
@@ -146,7 +153,7 @@ const Shift = () => {
                   }
                 })
               }}
-              error={errors?.type?.message}
+              error={errors?.serviceType?.message}
               errorClass=""
             />
             <TextArea
@@ -284,7 +291,7 @@ const Shift = () => {
           </div> */}
           <div className="w-full flex flex-col gap-5 border border-primarylight p-2 rounded-lg">
             <InputField
-              name="name"
+              name="patientName"
               register={register}
               type="text"
               label="Patient ID / Name"
@@ -292,7 +299,7 @@ const Shift = () => {
               //   icon="email"
               //   iconFirst
               inputClass=" !border-primarylight"
-              error={errors.name?.message}
+              error={errors.patientName?.message}
             />
             <InputField
               name="address"

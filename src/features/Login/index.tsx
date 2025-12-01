@@ -3,6 +3,7 @@ import { useForm, type SubmitHandler } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 
 import { useLogin } from '@/api/auth';
+import { tokenStorage } from '@/api/tokenStorage';
 import { getDefaultRouteByRole } from '@/config/defaultRoutes';
 import Button from '@/lib/Common/Button';
 import Icon from '@/lib/Common/Icon';
@@ -35,8 +36,11 @@ const Login = () => {
     const { success, data } = response;
     if (success && data) {
       const { user, token } = data;
-      dispatchSetUser({ ...user, token });
-      Navigate(getDefaultRouteByRole(user?.role?.name));
+      if (token) {
+        tokenStorage.setTokens({ accessToken: token });
+        dispatchSetUser({ ...user, token });
+        Navigate(getDefaultRouteByRole(user?.role?.name));
+      }
     }
   };
   return (
