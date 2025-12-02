@@ -6,20 +6,24 @@ import InputField from '@lib/Common/Input';
 import Select from '@lib/Common/Select';
 import TextArea from '@lib/Common/Textarea';
 import TimeSelect from '@lib/Common/TimeSelect';
-import { newShiftSchema, NewShiftSchemaType } from '@schema/shiftSchema';
+import { NewShiftFormSchemaType, newShiftSchema } from '@schema/shiftSchema';
 import moment from 'moment';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 
-import type { OptionTypeGlobal } from '@/types';
+import type { NewShiftSchemaType, OptionTypeGlobal } from '@/types';
+import { saveFormOffline } from '@/db';
+import { logger } from '@sentry/react';
+
 
 const defaultValues = {
-  start_time: '',
-  end_time: '',
+  startedAt: '',
+  endedAt: '',
   serviceType: undefined,
   notes: '', // Default value provided
   patientName: '', // Default value provided
-  address: '' // Default value provided
+  address: '', // Default value provided
+  submittedAt: new Date().toISOString(), // Default value provided
 };
 
 const typeOptions: OptionTypeGlobal[] = [
@@ -49,27 +53,58 @@ const Shift = () => {
   } = methods;
   const { mutateAsync: createShift, isPending: isCreatePending } =
     useCreateShift();
-  const handleFormSubmit: SubmitHandler<NewShiftSchemaType> = async (
-    credentials
-  ) => {
-    const {
-      end_time: endTime,
-      start_time: startTime,
-      ...tempData
-    } = credentials;
 
-    const response = await createShift({
-      ...tempData,
-      end_time: moment(endTime).toISOString(),
-      start_time: moment(startTime).toISOString(),
-      OrgName: 'organization1'
-      // OrgId: 'f94d9911-950e-413d-83af-9dad6534ceee',
-      // PatientId: '10c385d1-8d61-4571-bfca-4bdd28291a7c'
-    });
-    const { success } = response;
-    if (success) {
-      Navigate(ROUTES.HOME_VISIT.path);
+  const saveForm = async (data: Omit<NewShiftSchemaType, 'synced'>) => {
+    try {
+      let synced = 0;
+      let id = null;
+      if (navigator.onLine) {
+        try {
+          const response = await createShift(data);
+
+          // Check if the response indicates success
+          // Backend typically returns { success: boolean, data: {...}, message: string }
+          if (response && response.success !== false) {
+            const responseData = response.data;
+            if (responseData) {
+              id = responseData.id;
+            }
+            synced = 1; // Mark as synced only if API call succeeds
+          } else {
+            synced = 0;
+          }
+        } catch (apiError) {
+          logger.error("Error in createShift");
+          synced = 0; // API failed, mark as not synced
+        }
+      }
+      // Save to IndexedDB after API response (or if offline)
+      await saveFormOffline({
+        ...data,
+        ...(id && { id }),
+        synced,
+      });
+
+      logger.info(`Form saved to IndexedDB with synced.`);
+    } catch (error) {
+      logger.error('Error in saveForm');
     }
+  }
+
+  const handleFormSubmit: SubmitHandler<NewShiftFormSchemaType> = async (
+    formData
+  ) => {
+
+    const data: Omit<NewShiftSchemaType, 'synced'> = {
+      ...formData,
+      endedAt: moment(formData.endedAt).toISOString(),
+      startedAt: moment(formData.startedAt).toISOString(),
+      orgName: 'organization1',
+      serviceType: formData.serviceType?.value || null,
+    }
+
+    await saveForm(data);
+    Navigate(ROUTES.HOME_VISIT.path);
   };
   return (
     <>
@@ -82,9 +117,9 @@ const Shift = () => {
             <div className="grid grid-cols-2 gap-5">
               <TimeSelect
                 control={control}
-                name="start_time"
-                error={errors?.start_time?.message}
-                key="start_time"
+                name="startedAt"
+                error={errors?.startedAt?.message}
+                key="startedAt"
                 // id="start_time"
                 label="Start Time"
                 // timezone={timezone}
@@ -95,9 +130,9 @@ const Shift = () => {
               />
               <TimeSelect
                 control={control}
-                name="end_time"
-                error={errors?.end_time?.message}
-                key="end_time"
+                name="endedAt"
+                error={errors?.endedAt?.message}
+                key="endedAt"
                 // id="end_time"
                 label="End Time"
                 // timezone={timezone}
@@ -114,14 +149,15 @@ const Shift = () => {
               parentClassName=" w-full sm:w-2/4"
               className="w-full"
               isClearable={true}
-              value={
-                getValues('serviceType')
+              value={(() => {
+                const serviceType = getValues('serviceType') as OptionTypeGlobal | null | undefined;
+                return serviceType
                   ? ({
-                      value: getValues('serviceType.value'),
-                      label: getValues('serviceType.label')
-                    } as OptionTypeGlobal)
-                  : null
-              }
+                    value: serviceType.value,
+                    label: serviceType.label
+                  } as OptionTypeGlobal)
+                  : null;
+              })()}
               placeholder="Select Type"
               onChange={(data) => {
                 setValue('serviceType', data as OptionTypeGlobal, {

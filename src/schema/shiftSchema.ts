@@ -2,38 +2,39 @@ import { validationRules } from '@helper/validation';
 import * as yup from 'yup';
 
 export const newShiftSchema = yup.object().shape({
-  start_time: validationRules
+  startedAt: validationRules
     .string({ fieldName: 'Start Time', isRequired: true })
     .test(
       'start-time-required',
       'Start time is required',
       function startTimeValidation(value) {
-        const { end_time: endTime } = this.parent;
-        return !endTime || !!value;
+        const { endedAt } = this.parent;
+        return !endedAt || !!value;
       }
     ),
 
-  end_time: validationRules
+  endedAt: validationRules
     .string({ fieldName: 'End Time', isRequired: true })
     .test(
       'end-time-required',
       'End time is required',
       function endTimeValidation(value) {
-        const { start_time: startTime } = this.parent;
-        return !startTime || !!value;
+        const { startedAt } = this.parent;
+        return !startedAt || !!value;
       }
     ),
   serviceType: validationRules.object({
     fieldName: 'Service type',
-    isNullable: true,
+    isRequired: true,
+    isNullable: false,
     schema: {
       value: validationRules.string({
         fieldName: 'Service type',
-        isNullable: true
+        isNullable: false
       }),
       label: validationRules.string({
         fieldName: 'Service type',
-        isNullable: true
+        isNullable: false
       })
     }
   }),
@@ -103,7 +104,9 @@ export const newShiftSchema = yup.object().shape({
   address: validationRules.string({
     fieldName: 'Address',
     isRequired: false
-  })
+  }),
+  submittedAt: yup.string().required('Submitted At is required')
 });
 
-export type NewShiftSchemaType = yup.InferType<typeof newShiftSchema>;
+export type NewShiftFormSchemaType = yup.InferType<typeof newShiftSchema>;
+
