@@ -10,9 +10,10 @@ export type UserState = {
     id: string;
     name: string;
     slug: string;
-  };
+  } | null;
   authProvider: string;
   token?: string | null;
+  refreshToken?: string | null;
 };
 
 const initialState: UserState = {
@@ -20,13 +21,10 @@ const initialState: UserState = {
   firstName: '',
   lastName: '',
   email: '',
-  role: {
-    id: '',
-    name: '',
-    slug: ''
-  },
+  role: null,
   authProvider: '',
-  token: undefined
+  token: undefined,
+  refreshToken: undefined
 };
 
 const user = createSlice({
@@ -51,7 +49,8 @@ const user = createSlice({
       }
       return {
         ...initialState,
-        token: undefined
+        token: undefined,
+        refreshToken: undefined
       };
     }
   }

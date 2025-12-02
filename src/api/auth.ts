@@ -10,6 +10,7 @@ export interface LoginResponse {
   success: boolean;
   message?: string;
   data: {
+    refreshToken?: string;
     token?: string;
     user: User;
   };
@@ -32,6 +33,39 @@ export const useLogin = (
     ): Promise<LoginResponse> => {
       const response = await axiosPost(`/auth/login`, {
         data: credentials
+      });
+
+      return response.data;
+    },
+    showToast: true,
+    ...options
+  });
+};
+
+export interface RefreshTokenResponse {
+  success: boolean;
+  message?: string;
+  data: {
+    refreshToken?: string;
+    token?: string;
+  };
+  role?: string;
+}
+
+export const useRefreshToken = (
+  options?: UseMutationOptions<
+    RefreshTokenResponse,
+    AxiosError,
+    { refreshToken?: string }
+  >
+) => {
+  return useMutation({
+    mutationKey: authQueryKey.refreshToken(),
+    mutationFn: async (data: {
+      refreshToken?: string;
+    }): Promise<LoginResponse> => {
+      const response = await axiosPost(`/auth/refresh`, {
+        data
       });
 
       return response.data;

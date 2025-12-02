@@ -35,10 +35,11 @@ const Login = () => {
     const response = await login(credentials);
     const { success, data } = response;
     if (success && data) {
-      const { user, token } = data;
+      const { user, token, refreshToken } = data;
       if (token) {
         tokenStorage.setTokens({ accessToken: token });
-        dispatchSetUser({ ...user, token });
+        if (refreshToken) tokenStorage.setRefreshToken(refreshToken);
+        dispatchSetUser({ ...user, token, refreshToken });
         navigate(getDefaultRouteByRole(user?.role?.name));
       }
     }

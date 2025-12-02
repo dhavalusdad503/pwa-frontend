@@ -20,8 +20,7 @@ const createNoopStorage: () => WebStorage = () => {
 const storage: WebStorage = createNoopStorage();
 const persistConfig = {
   key: 'demo',
-  storage: storage,
-  whitelist: ['user']
+  storage: storage
 };
 
 const rootReducer = combineReducers({
