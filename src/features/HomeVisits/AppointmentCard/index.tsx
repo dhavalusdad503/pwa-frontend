@@ -1,31 +1,37 @@
+import { formatDateTime } from "@/helper/dateUtils";
+
 // AppointmentCard.jsx
 export interface AppointmentCardProps {
-  name: string;
-  date: string;
-  address: string;
-  service: string;
-  status: string;
+  id?: string | number;
+  patientName?: string;
+  address?: string;
+  startedAt: string;
+  endedAt: string;
+  serviceType: string | null;
+  synced: number;
 }
 export default function AppointmentCard(data: AppointmentCardProps) {
+
   return (
     <div
-      key={data?.name}
+      key={data?.id}
       className="w-full max-w-xl bg-white rounded-xl shadow p-4 border border-gray-200">
       {/* Header Row */}
       <div className="flex justify-between items-start mb-2">
-        <h2 className="font-semibold text-lg text-gray-900">{data?.name}</h2>
-        <p className="text-sm text-gray-600">{data?.date}</p>
+        <h2 className="text-lg text-gray-900">{data?.patientName}</h2>
+        <p className="text-sm text-gray-600">{data?.startedAt && formatDateTime(data?.startedAt)} to {data?.endedAt && formatDateTime(data?.endedAt)}</p>
       </div>
 
       {/* Details */}
       <div className="text-sm text-gray-700 space-y-1">
-        <p className="text-gray-600">{data?.address}</p>
+        {/* <p className="text-gray-600">{data?.address || "fake address"}</p> */}
         <p>
-          <span className="font-medium">Service:</span> {data?.service}
+          <span className="">Service:</span> {data?.serviceType}
         </p>
+      </div>
+      <div className="text-sm text-gray-700 space-y-1">
         <p>
-          <span className="font-medium">Status:</span>{' '}
-          <span className="text-blue-600">{data?.status}</span>
+          <span className="">Submitted:</span> {data?.synced === 1 ? "Yes" : "No"}
         </p>
       </div>
     </div>

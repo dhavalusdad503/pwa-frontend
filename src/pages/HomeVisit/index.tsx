@@ -1,4 +1,4 @@
-import HomeVisits from '@/features/HomeVisits';
+import HomeVisits from '@features/HomeVisits';
 
 const Home = () => {
   return <HomeVisits />;

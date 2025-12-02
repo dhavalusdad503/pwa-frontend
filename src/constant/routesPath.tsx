@@ -1,11 +1,13 @@
 import { lazy } from 'react';
 
-import { Navigate, type RouteObject } from 'react-router-dom';
+import NotFound from '@components/common/NotFound';
+import { type RouteObject } from 'react-router-dom';
 
-const Dashboard = lazy(() => import('@/pages/Dashboard'));
-const Login = lazy(() => import('@/pages/Login'));
-const HomeVisits = lazy(() => import('@/pages/HomeVisit'));
-const NewShift = lazy(() => import('@/pages/NewShift'));
+const Dashboard = lazy(() => import('@pages/Dashboard'));
+const Login = lazy(() => import('@pages/Login'));
+const HomeVisits = lazy(() => import('@pages/HomeVisit'));
+const NewShift = lazy(() => import('@pages/NewShift'));
+const Root = lazy(() => import('@pages/Root'));
 // const Product = lazy(() => import('@/pages/Product'));
 // const Category = lazy(() => import('@/pages/Category'));
 // const User = lazy(() => import('@/pages/User'));
@@ -34,6 +36,7 @@ export type RoutesType = {
     headerName?: string;
     routeType: 'public' | 'authenticate' | 'un-authenticate';
     element: RouteObject['element'];
+    errorElement?: RouteObject['errorElement'];
   };
   // } & {
   //   [key in 'EDIT_USER' | 'VIEW_USER']: {
@@ -42,15 +45,15 @@ export type RoutesType = {
 };
 
 export const ROUTES: RoutesType = {
+  DEFAULT: {
+    path: '/',
+    routeType: 'public',
+    element: <Root />
+  },
   LOGIN: {
     path: '/login',
     routeType: 'un-authenticate',
     headerName: 'Login',
-    element: <Login />
-  },
-  DEFAULT: {
-    path: '/',
-    routeType: 'un-authenticate',
     element: <Login />
   },
   CAREGIVER_DASHBOARD: {
@@ -86,6 +89,6 @@ export const ROUTES: RoutesType = {
   NOT_FOUND: {
     path: '*',
     routeType: 'un-authenticate',
-    element: <Navigate to={'/'} />
+    element: <NotFound />
   }
 } as const;

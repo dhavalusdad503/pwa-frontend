@@ -1,26 +1,29 @@
+import { useCreateShift } from '@api/newShift';
+import { ROUTES } from '@constant/routesPath';
 import { yupResolver } from '@hookform/resolvers/yup';
+import Button from '@lib/Common/Button';
+import InputField from '@lib/Common/Input';
+import Select from '@lib/Common/Select';
+import TextArea from '@lib/Common/Textarea';
+import TimeSelect from '@lib/Common/TimeSelect';
+import { NewShiftFormSchemaType, newShiftSchema } from '@schema/shiftSchema';
+import moment from 'moment';
 import { SubmitHandler, useForm } from 'react-hook-form';
+import { useNavigate } from 'react-router-dom';
 
-import Button from '@/lib/Common/Button';
-import InputField from '@/lib/Common/Input';
-import Select from '@/lib/Common/Select';
-import TextArea from '@/lib/Common/Textarea';
-import TimeSelect from '@/lib/Common/TimeSelect';
-import { newShiftSchema, type NewShiftSchemaType } from '@/schema/loginSchema';
-import type { OptionTypeGlobal } from '@/types';
+import type { NewShiftSchemaType, OptionTypeGlobal } from '@/types';
+import { saveFormOffline } from '@/db';
+import { logger } from '@sentry/react';
+
+
 const defaultValues = {
-  start_time: '',
-  end_time: '',
-  type: null,
-  notes: '',
-  image: null,
-  client_present: false,
-  medication_reviewed: false,
-  follow_up: false,
-  safety_check: false,
-  attestation: false,
-  name: '',
-  attestation_image: null
+  startedAt: '',
+  endedAt: '',
+  serviceType: undefined,
+  notes: '', // Default value provided
+  patientName: '', // Default value provided
+  address: '', // Default value provided
+  submittedAt: new Date().toISOString(), // Default value provided
 };
 
 const typeOptions: OptionTypeGlobal[] = [
@@ -31,6 +34,7 @@ const typeOptions: OptionTypeGlobal[] = [
   { label: 'Half Day', value: 'half_day' }
 ];
 const Shift = () => {
+  const Navigate = useNavigate();
   const methods = useForm<NewShiftSchemaType>({
     mode: 'onChange',
     shouldFocusError: true,
@@ -47,10 +51,60 @@ const Shift = () => {
     getValues,
     control
   } = methods;
-  console.log('value', getValues('type'));
+  const { mutateAsync: createShift, isPending: isCreatePending } =
+    useCreateShift();
 
-  const handleFormSubmit: SubmitHandler<NewShiftSchemaType> = async (data) => {
-    console.log('Form Data', data);
+  const saveForm = async (data: Omit<NewShiftSchemaType, 'synced'>) => {
+    try {
+      let synced = 0;
+      let id = null;
+      if (navigator.onLine) {
+        try {
+          const response = await createShift(data);
+
+          // Check if the response indicates success
+          // Backend typically returns { success: boolean, data: {...}, message: string }
+          if (response && response.success !== false) {
+            const responseData = response.data;
+            if (responseData) {
+              id = responseData.id;
+            }
+            synced = 1; // Mark as synced only if API call succeeds
+          } else {
+            synced = 0;
+          }
+        } catch (apiError) {
+          logger.error("Error in createShift");
+          synced = 0; // API failed, mark as not synced
+        }
+      }
+      // Save to IndexedDB after API response (or if offline)
+      await saveFormOffline({
+        ...data,
+        ...(id && { id }),
+        synced,
+      });
+
+      logger.info(`Form saved to IndexedDB with synced.`);
+    } catch (error) {
+      logger.error('Error in saveForm');
+    }
+  }
+
+  const handleFormSubmit: SubmitHandler<NewShiftFormSchemaType> = async (
+    formData
+  ) => {
+
+    const data: Omit<NewShiftSchemaType, 'synced'> = {
+      ...formData,
+      endedAt: moment(formData.endedAt).toISOString(),
+      startedAt: moment(formData.startedAt).toISOString(),
+      orgName: 'organization1',
+      serviceType: formData.serviceType?.value || null,
+    }
+
+    await saveForm(data);
+    Navigate(ROUTES.HOME_VISIT.path);
   };
   return (
     <>
@@ -63,9 +117,9 @@ const Shift = () => {
             <div className="grid grid-cols-2 gap-5">
               <TimeSelect
                 control={control}
-                name="start_time"
-                error={errors?.start_time?.message}
-                key="start_time"
+                name="startedAt"
+                error={errors?.startedAt?.message}
+                key="startedAt"
                 // id="start_time"
                 label="Start Time"
                 // timezone={timezone}
@@ -76,9 +130,9 @@ const Shift = () => {
               />
               <TimeSelect
                 control={control}
-                name="end_time"
-                error={errors?.end_time?.message}
-                key="end_time"
+                name="endedAt"
+                error={errors?.endedAt?.message}
+                key="endedAt"
                 // id="end_time"
                 label="End Time"
                 // timezone={timezone}
@@ -95,21 +149,22 @@ const Shift = () => {
               parentClassName=" w-full sm:w-2/4"
               className="w-full"
               isClearable={true}
-              value={
-                getValues('type')
+              value={(() => {
+                const serviceType = getValues('serviceType') as OptionTypeGlobal | null | undefined;
+                return serviceType
                   ? ({
-                      value: getValues('type.value'),
-                      label: getValues('type.label')
-                    } as OptionTypeGlobal)
-                  : null
-              }
+                    value: serviceType.value,
+                    label: serviceType.label
+                  } as OptionTypeGlobal)
+                  : null;
+              })()}
               placeholder="Select Type"
               onChange={(data) => {
-                setValue('type', data as OptionTypeGlobal, {
+                setValue('serviceType', data as OptionTypeGlobal, {
                   shouldValidate: true
                 });
               }}
-              name="type"
+              name="serviceType"
               options={typeOptions}
               StylesConfig={{
                 control: () => ({
@@ -135,7 +190,7 @@ const Shift = () => {
                   }
                 })
               }}
-              error={errors?.type?.message}
+              error={errors?.serviceType?.message}
               errorClass=""
             />
             <TextArea
@@ -273,7 +328,7 @@ const Shift = () => {
           </div> */}
           <div className="w-full flex flex-col gap-5 border border-primarylight p-2 rounded-lg">
             <InputField
-              name="name"
+              name="patientName"
               register={register}
               type="text"
               label="Patient ID / Name"
@@ -281,7 +336,7 @@ const Shift = () => {
               //   icon="email"
               //   iconFirst
               inputClass=" !border-primarylight"
-              error={errors.name?.message}
+              error={errors.patientName?.message}
             />
             <InputField
               name="address"
@@ -309,10 +364,10 @@ const Shift = () => {
             <Button
               type="submit"
               variant="filled"
-              // isLoading={isLoading}
-              title="Submit"
+              isLoading={isCreatePending}
+              title={isCreatePending ? 'Submitting...' : 'Submit'}
               className="w-sm rounded-10px ! !font-bold !leading-5"
-              // isDisabled={isLoading}
+              isDisabled={isCreatePending}
               onClick={handleSubmit(handleFormSubmit)}
             />
           </div>

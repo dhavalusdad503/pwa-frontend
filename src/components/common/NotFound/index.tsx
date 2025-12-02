@@ -1,9 +1,8 @@
+import { ROUTES } from '@constant/routesPath';
+import Button from '@lib/Common/Button';
+import Icon from '@lib/Common/Icon';
+import Image from '@lib/Common/Image';
 import { useNavigate } from 'react-router-dom';
-
-import { ROUTES } from '@/constant/routesPath';
-import Button from '@/lib/Common/Button';
-import Icon from '@/lib/Common/Icon';
-import Image from '@/lib/Common/Image';
 
 const NotFound = () => {
   const navigate = useNavigate();

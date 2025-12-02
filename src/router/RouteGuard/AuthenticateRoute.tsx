@@ -1,16 +1,14 @@
-import React, { type PropsWithChildren, Suspense } from 'react';
+import React, { PropsWithChildren, Suspense } from 'react';
 
+import { useRoleBasedRouting } from '@hooks/useRoleBasedRouting';
+import SectionLoader from '@lib/Common/Loader/Spinner';
 import { Navigate, useLocation } from 'react-router-dom';
-
-import { useRoleBasedRouting } from '@/hooks/useRoleBasedRouting';
-import SectionLoader from '@/lib/Common/Loader/Spinner';
 
 const AuthenticateRoute: React.FC<PropsWithChildren> = ({ children }) => {
   // const { isAuthenticated } = useAuthState();
   const location = useLocation();
   const { isRouteAccessible, getDefaultRoute } = useRoleBasedRouting();
   // const { role } = useSelector(currentUser);
-  console.log({ isRouteAccessible });
   // if (!isAuthenticated) {
   //   if (role === UserRole.CLIENT) {
   //     return <Navigate to={ROUTES.LOGIN.path} replace />;

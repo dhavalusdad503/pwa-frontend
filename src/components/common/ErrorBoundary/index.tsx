@@ -1,8 +1,7 @@
 import { Component, type ReactNode } from 'react';
 
+import Error from '@components/common/ErrorBoundary/Error';
 import * as Sentry from '@sentry/react';
-
-import Error from '@/components/common/ErrorBoundary/Error';
 
 // Define the types for the state
 interface ErrorBoundaryState {
@@ -16,7 +15,10 @@ interface ErrorBoundaryProps {
   path?: string;
 }
 
-export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
+export class ErrorBoundary extends Component<
+  ErrorBoundaryProps,
+  ErrorBoundaryState
+> {
   constructor(props: ErrorBoundaryProps) {
     super(props);
     this.state = { hasError: false, errorInfo: null };
@@ -32,7 +34,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
     // console.error('Error occurred: ', error);
     // console.error('Error info: ', info);
     Sentry.captureException(error, {
-      extra: { componentStack: info.componentStack },
+      extra: { componentStack: info.componentStack }
     });
   }
 

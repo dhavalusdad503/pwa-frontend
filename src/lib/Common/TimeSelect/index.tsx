@@ -187,8 +187,12 @@ export const TimeSelect = <TFieldValues extends FieldValues>({
                   {...(minTime && { minTime: toDisplayDate(minTime) })}
                   {...(maxTime && { maxTime: toDisplayDate(maxTime) })}
                   onChange={(val) => {
-                    onChangeCallback(toUtcDate(val));
-                    handleDateChange(toUtcDate(val));
+                    const utcDate = toUtcDate(val);
+                    const valueToSet = isISOString && utcDate
+                      ? moment(utcDate).toISOString()
+                      : utcDate;
+                    onChangeCallback(valueToSet);
+                    handleDateChange(utcDate);
                   }}
                   showTimeSelect
                   showTimeSelectOnly
@@ -247,9 +251,8 @@ export const TimeSelect = <TFieldValues extends FieldValues>({
 
           <div
             onClick={handleIconClick}
-            className={`absolute right-3 top-2/4 -translate-y-2/4 ${
-              isDisabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'
-            }`}>
+            className={`absolute right-3 top-2/4 -translate-y-2/4 ${isDisabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'
+              }`}>
             <Icon
               name="Timer"
               className="text-blackdark icon-wrapper w-18px h-18px"

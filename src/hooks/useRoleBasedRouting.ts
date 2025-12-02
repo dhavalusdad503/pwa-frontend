@@ -1,12 +1,11 @@
 import { useEffect } from 'react';
 
+import { USER_ROLE } from '@api/types/user.dto';
+import { getDefaultRouteByRole } from '@config/defaultRoutes';
+import { ROUTES } from '@constant/routesPath';
+import { currentUser } from '@redux/ducks/user';
 import { useSelector } from 'react-redux';
 import { useLocation, useNavigate } from 'react-router-dom';
-
-import { USER_ROLE } from '@/api/types/user.dto';
-import { getDefaultRouteByRole } from '@/config/defaultRoutes';
-import { ROUTES } from '@/constant/routesPath';
-import { currentUser } from '@/redux/ducks/user';
 
 export const useRoleBasedRouting = () => {
   const navigate = useNavigate();

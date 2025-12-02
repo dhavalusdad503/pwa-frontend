@@ -17,11 +17,21 @@
     "jsx": "react-jsx",
     "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"],
       "@lib/*": ["src/lib/*"],
       "@components/*": ["src/components/*"],
       "@features/*": ["src/features/*"],
-      "@constant/*": ["src/constant/*"]
+      "@constant/*": ["src/constant/*"],
+      "@api/*": ["src/api/*"],
+      "@assets/*": ["src/assets/*"],
+      "@config/*": ["src/config/*"],
+      "@helper/*": ["src/helper/*"],
+      "@hooks/*": ["src/hooks/*"],
+      "@redux/*": ["src/redux/*"],
+      "@pages/*": ["src/pages/*"],
+      "@styles/*": ["src/styles/*"],
+      "@schema/*": ["src/schema/*"],
+      "@router/*": ["src/router/*"],
+      "@/*": ["src/*"]
     },
     /* Linting */
     "strict": true,

@@ -1,4 +1,4 @@
-import Shift from '@/features/NewShift';
+import Shift from '@features/NewShift';
 
 const NewShift = () => {
   return (

@@ -1,7 +1,9 @@
+import { queryClient } from '@api/QueryProvider';
+import { tokenStorage } from '@api/tokenStorage';
+import { BASE_URL } from '@constant/index';
+import { dispatchSetUser } from '@redux/dispatch/user.dispatch';
 import axios, { type AxiosRequestConfig, type AxiosError } from 'axios';
 
-import { queryClient } from '@/api/QueryProvider';
-import { tokenStorage } from '@/api/tokenStorage';
 // import { tokenStorage } from './tokenStorgae';
 
 // import { queryClient } from '@/api/QueryProvider';
@@ -18,8 +20,6 @@ export const PERMISSION_QUERY_KEYS_NAME = {
 
 export const PERMISSION_ERROR =
   'You do not have permission to perform this action';
-
-const BASE_URL = import.meta.env.VITE_BASE_URL;
 
 const axiosInstance = axios.create({
   baseURL: `${BASE_URL}/api`
@@ -158,12 +158,17 @@ axiosInstance.interceptors.response.use(
           }
         );
 
-        const { accessToken, refreshToken: newRefreshToken } =
-          response.data.data;
+        const { token: accessToken, refreshToken: newRefreshToken } =
+          response.data;
 
         // Store new tokens - pass as object!
         tokenStorage.setTokens({ accessToken });
         tokenStorage.setRefreshToken(newRefreshToken);
+
+        dispatchSetUser({
+          token: accessToken,
+          refreshToken: newRefreshToken
+        });
 
         // Process queued requests
         processQueue(null, accessToken);

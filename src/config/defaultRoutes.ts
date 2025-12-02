@@ -1,5 +1,5 @@
-import { USER_ROLE } from '@/api/types/user.dto';
-import { ROUTES } from '@/constant/routesPath';
+import { USER_ROLE } from '@api/types/user.dto';
+import { ROUTES } from '@constant/routesPath';
 
 export const getDefaultRouteByRole = (userRole: string): string => {
   switch (userRole) {

@@ -1,4 +1,3 @@
-// import type { AuthTokens } from '@/api/types';
 export interface AuthTokens {
   accessToken: string;
 }
