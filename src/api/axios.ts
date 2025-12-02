@@ -1,6 +1,7 @@
 import { queryClient } from '@api/QueryProvider';
 import { tokenStorage } from '@api/tokenStorage';
 import { BASE_URL } from '@constant/index';
+import { dispatchSetUser } from '@redux/dispatch/user.dispatch';
 import axios, { type AxiosRequestConfig, type AxiosError } from 'axios';
 
 // import { tokenStorage } from './tokenStorgae';
@@ -163,6 +164,11 @@ axiosInstance.interceptors.response.use(
         // Store new tokens - pass as object!
         tokenStorage.setTokens({ accessToken });
         tokenStorage.setRefreshToken(newRefreshToken);
+
+        dispatchSetUser({
+          token: accessToken,
+          refreshToken: newRefreshToken
+        });
 
         // Process queued requests
         processQueue(null, accessToken);
