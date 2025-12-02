@@ -62,8 +62,9 @@ const Shift = () => {
       ...tempData,
       end_time: moment(endTime).toISOString(),
       start_time: moment(startTime).toISOString(),
-      OrgId: 'f94d9911-950e-413d-83af-9dad6534ceee',
-      PatientId: '10c385d1-8d61-4571-bfca-4bdd28291a7c'
+      OrgName: 'organization1'
+      // OrgId: 'f94d9911-950e-413d-83af-9dad6534ceee',
+      // PatientId: '10c385d1-8d61-4571-bfca-4bdd28291a7c'
     });
     const { success } = response;
     if (success) {
