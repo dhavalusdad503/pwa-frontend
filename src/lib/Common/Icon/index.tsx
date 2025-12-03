@@ -183,8 +183,8 @@ import WifiOff from '@/assets/svg/WifiOff.svg?react';
 import X from '@/assets/svg/X.svg?react';
 import ZoomIcon from '@/assets/svg/ZoomIcon.svg?react';
 // import { Image } from '@/lib/Common';
-import Spinner from '@/lib/Common/Loader/Spinner';
 import Image from '@/lib/Common/Image';
+import Spinner from '@/lib/Common/Loader/Spinner';
 
 export type IconNameType =
   | 'queue'

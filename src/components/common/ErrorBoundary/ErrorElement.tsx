@@ -1,7 +1,6 @@
 // ** Packages **
+import Error from '@components/common/ErrorBoundary/Error';
 import { useRouteError } from 'react-router-dom';
-
-import Error from '@/components/common/ErrorBoundary/Error';
 
 interface ErrorElementProps {
   path?: string;

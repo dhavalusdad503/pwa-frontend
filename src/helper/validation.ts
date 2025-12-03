@@ -190,7 +190,7 @@ export const validationRules = {
     isNullable = false
   }: T): DynamicBooleanSchema<T> => {
     let schema = yup.boolean().nullable();
-    
+
     if (isRequired)
       schema = schema.required(requiredMessage || `${fieldName} is required`);
     if (isNullable) schema = schema.nullable();
@@ -286,39 +286,39 @@ export const validationRules = {
         return this.parent?.[isValidKey] ?? false;
       }
     ) as DynamicPhoneSchema<T>;
-  },
+  }
 
-//   usPhoneNumber: <T extends PhoneSchemaArgs>({
-//     fieldName,
-//     isRequired = false,
-//     requiredMessage,
-//     isNullable = false
-//   }: T): DynamicPhoneSchema<T> => {
-//     let schema = yup.string().nullable();
+  //   usPhoneNumber: <T extends PhoneSchemaArgs>({
+  //     fieldName,
+  //     isRequired = false,
+  //     requiredMessage,
+  //     isNullable = false
+  //   }: T): DynamicPhoneSchema<T> => {
+  //     let schema = yup.string().nullable();
 
-//     if (isRequired)
-//       schema = schema.required(requiredMessage || `${fieldName} is required`);
-//     if (isNullable) schema = schema.nullable();
+  //     if (isRequired)
+  //       schema = schema.required(requiredMessage || `${fieldName} is required`);
+  //     if (isNullable) schema = schema.nullable();
 
-//     return schema.test(
-//       'is-valid-phone',
-//       `Please Enter a Valid ${fieldName || 'Phone number'}`,
-//       function isValidPhone(value) {
-//         if (!value) return !isRequired;
-//         try {
-//           // Parse and validate number
-//           const phoneValue = phonenoPlusAdd(value) || '';
-//           const phoneNumber = parsePhoneNumberFromString(phoneValue, 'US');
+  //     return schema.test(
+  //       'is-valid-phone',
+  //       `Please Enter a Valid ${fieldName || 'Phone number'}`,
+  //       function isValidPhone(value) {
+  //         if (!value) return !isRequired;
+  //         try {
+  //           // Parse and validate number
+  //           const phoneValue = phonenoPlusAdd(value) || '';
+  //           const phoneNumber = parsePhoneNumberFromString(phoneValue, 'US');
 
-//           // Check: must be a valid US number
-//           if (!phoneNumber || phoneNumber?.nationalNumber?.length < 10)
-//             return false;
+  //           // Check: must be a valid US number
+  //           if (!phoneNumber || phoneNumber?.nationalNumber?.length < 10)
+  //             return false;
 
-//           return phoneNumber?.isPossible();
-//         } catch {
-//           return false;
-//         }
-//       }
-//     ) as DynamicPhoneSchema<T>;
-//   }
+  //           return phoneNumber?.isPossible();
+  //         } catch {
+  //           return false;
+  //         }
+  //       }
+  //     ) as DynamicPhoneSchema<T>;
+  //   }
 };

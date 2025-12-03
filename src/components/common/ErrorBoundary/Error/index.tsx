@@ -1,5 +1,5 @@
-import Button from '@/lib/Common/Button';
-import Icon from '@/lib/Common/Icon';
+import Button from '@lib/Common/Button';
+import Icon from '@lib/Common/Icon';
 
 interface ErrorProps {
   path?: string;

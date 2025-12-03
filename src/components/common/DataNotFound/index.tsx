@@ -1,4 +1,4 @@
-import Icon from '@/lib/Common/Icon';
+import Icon from '@lib/Common/Icon';
 import clsx from 'clsx';
 
 export interface DataNotFoundProps {

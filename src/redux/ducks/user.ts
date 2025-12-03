@@ -1,37 +1,62 @@
+import { tokenStorage } from '@api/tokenStorage';
 import { type PayloadAction, createSlice } from '@reduxjs/toolkit';
 
 export type UserState = {
   id: string;
-  name: string;
+  firstName: string;
+  lastName: string;
   email: string;
-  phone: string;
-  isLoggedIn: boolean;
+  role: {
+    id: string;
+    name: string;
+    slug: string;
+  } | null;
+  authProvider: string;
+  token?: string | null;
+  refreshToken?: string | null;
 };
 
 const initialState: UserState = {
   id: '',
-  name: '',
+  firstName: '',
+  lastName: '',
   email: '',
-  phone: '',
-  isLoggedIn: false
+  role: null,
+  authProvider: '',
+  token: undefined,
+  refreshToken: undefined
 };
 
 const user = createSlice({
-  name: 'user', // unique name to slice
+  name: 'user',
   initialState,
   reducers: {
-    setUser: (state, action: PayloadAction<Partial<UserState>>) => {
+    setUser: (state, action: PayloadAction<Partial<UserState> | null>) => {
       return { ...state, ...action.payload };
     },
-    clearUser: () => {
+    clearUser: (
+      state,
+      action: PayloadAction<{
+        isRedirect: boolean;
+        isForceClear: boolean;
+      }>
+    ) => {
+      if (action.payload.isForceClear) {
+        tokenStorage.clearTokens();
+      }
+      if (action.payload.isRedirect) {
+        return state;
+      }
       return {
-        ...initialState
+        ...initialState,
+        token: undefined,
+        refreshToken: undefined
       };
     }
   }
 });
 
-export const currentUser = (state: { user: UserState }) => state.user; // export slice name call to reduce code in useSelector
+export const currentUser = (state: { user: UserState }) => state.user;
 
-export const { setUser, clearUser } = user.actions; // export all action
+export const { setUser, clearUser } = user.actions;
 export default user.reducer;

@@ -2,6 +2,7 @@ import { configureStore } from '@reduxjs/toolkit';
 import { type Middleware } from 'redux';
 import { logger } from 'redux-logger';
 import { persistStore } from 'redux-persist';
+
 import rootReducer from './root.reducer';
 
 const Middlewares: Middleware[] = [];
