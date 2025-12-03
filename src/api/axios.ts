@@ -1,6 +1,12 @@
 import { queryClient } from '@api/QueryProvider';
 import { tokenStorage } from '@api/tokenStorage';
 import { BASE_URL } from '@constant/index';
+import {
+  aesDecrypt,
+  aesEncrypt,
+  generateAndWrapAESKey,
+  generateRandomWord
+} from '@helper/cryptoUtils';
 import { dispatchSetUser } from '@redux/dispatch/user.dispatch';
 import axios, { type AxiosRequestConfig, type AxiosError } from 'axios';
 
@@ -72,11 +78,54 @@ const processQueue = (
 
 // Request interceptor to add auth token
 axiosInstance.interceptors.request.use(
-  (request) => {
+  async (request) => {
     const accessToken = tokenStorage.getAccessToken();
     if (accessToken) {
-      request.headers['Authorization'] = `Bearer ${accessToken}`;
+      request.headers.Authorization = `Bearer ${accessToken}`;
     }
+
+    const { aesKey, wrappedKeyBase64 } = await generateAndWrapAESKey();
+    request.headers['x-aes-key'] = wrappedKeyBase64;
+    request.__aesKey = aesKey;
+
+    if (request.data) {
+      if (request.data instanceof FormData) {
+        const obj: { [key: string]: string } = {};
+
+        request.data.forEach((value, key) => {
+          if (!(value instanceof File)) {
+            obj[key] = value;
+          }
+        });
+
+        Object.keys(obj).forEach((key) => {
+          request.data.delete(key);
+        });
+        const newFormDataPayload = await aesEncrypt(obj, aesKey);
+        if (typeof newFormDataPayload === 'string') {
+          request.data.set(generateRandomWord(), newFormDataPayload);
+        }
+      } else {
+        request.data = {
+          [generateRandomWord()]: await aesEncrypt(request.data, aesKey)
+        };
+      }
+    }
+
+    // if (request.headers.Authorization) {
+    //   const tempToken = {
+    //     token: request.headers.Authorization,
+    //     date: moment.utc().toISOString()
+    //   };
+    //   request.headers.Authorization = await aesEncrypt(tempToken, aesKey);
+    // }
+
+    if (request.params && Object.keys(request.params).length) {
+      request.params = {
+        [generateRandomWord()]: await aesEncrypt(request.params, aesKey)
+      };
+    }
+
     return request;
   },
   (error) => Promise.reject(error)
@@ -84,7 +133,23 @@ axiosInstance.interceptors.request.use(
 
 // Response interceptor to handle token refresh
 axiosInstance.interceptors.response.use(
-  (response) => response,
+  async (response) => {
+    try {
+      if (response?.data && response?.config?.__aesKey) {
+        const dataObj = response.data;
+        const decrypted = await aesDecrypt(
+          response.config.__aesKey,
+          Object.values(dataObj)[0] as string
+        );
+        response.data = decrypted;
+        return response;
+      }
+    } catch (err) {
+      console.error('Response decryption failed', err);
+      return Promise.reject(err);
+    }
+    return response;
+  },
   async (error: AxiosError) => {
     const originalRequest = error.config as AxiosRequestConfig & {
       _retry?: boolean;
