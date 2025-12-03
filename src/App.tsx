@@ -3,7 +3,6 @@ import { ErrorBoundary } from '@components/common';
 import { Providers } from '@redux/Provider';
 import Route from '@router/index';
 import { ToastContainer } from 'react-toastify';
-import { OfflineSyncProvider } from '@/hooks/useOfflineFormSync';
 
 
 const PreRoute = () => {
@@ -14,7 +13,6 @@ function App() {
   return (
     <ErrorBoundary>
       <QueryProvider>
-         <OfflineSyncProvider>
         <Providers>
           <ToastContainer
             position="top-right"
@@ -31,7 +29,6 @@ function App() {
           />
           <PreRoute />
         </Providers>
-      </OfflineSyncProvider>
       </QueryProvider>
     </ErrorBoundary>
   );

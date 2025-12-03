@@ -1,6 +1,6 @@
-import { useCreateShift } from "@/api/newShift";
-import { deleteItem, getUnsyncedForms, markFormSynced, saveFormOffline, updateId } from "@/db";
+import { deleteItem, getUnsyncedForms, saveFormOffline } from "@/db";
 import { NewShiftSchemaType } from "@/types/index";
+import { useCreateShift } from "@api/newShift";
 import { useEffect, useState, createContext, useContext, ReactNode } from "react";
 
 // Internal hook that handles the sync logic
@@ -29,9 +29,9 @@ const useOfflineFormSyncLogic = () => {
 
   useEffect(() => {
     if (isOnline) {
-      void syncToCloud();
+      setTimeout(() => void syncToCloud(), 1000); // for connection establishment
     }
-  }, [isOnline,]);
+  }, [isOnline]);
 
   const syncToCloud = async () => {
     const unsynced: NewShiftSchemaType[] = await getUnsyncedForms();
@@ -46,9 +46,9 @@ const useOfflineFormSyncLogic = () => {
       const { error, data } = await createShift(payload);
 
       if (!error && typeof id === 'number') {
-        const dbId : string = data?.id;
+        const dbId: string = data?.id;
         await deleteItem(id);
-        await saveFormOffline({...payload, id: dbId, synced: 1});
+        await saveFormOffline({ ...payload, id: dbId, synced: 1 });
       } else if (error) {
         break;
       }
