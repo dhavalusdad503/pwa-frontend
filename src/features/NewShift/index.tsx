@@ -7,13 +7,13 @@ import Select from '@lib/Common/Select';
 import TextArea from '@lib/Common/Textarea';
 import TimeSelect from '@lib/Common/TimeSelect';
 import { NewShiftFormSchemaType, newShiftSchema } from '@schema/shiftSchema';
+import { logger } from '@sentry/react';
 import moment from 'moment';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 
-import type { NewShiftSchemaType, OptionTypeGlobal } from '@/types';
 import { saveFormOffline } from '@/db';
-import { logger } from '@sentry/react';
+import type { NewShiftSchemaType, OptionTypeGlobal } from '@/types';
 
 
 const defaultValues = {
@@ -73,7 +73,7 @@ const Shift = () => {
           } else {
             synced = 0;
           }
-        } catch (apiError) {
+        } catch {
           logger.error("Error in createShift");
           synced = 0; // API failed, mark as not synced
         }
@@ -86,7 +86,7 @@ const Shift = () => {
       });
 
       logger.info(`Form saved to IndexedDB with synced.`);
-    } catch (error) {
+    } catch {
       logger.error('Error in saveForm');
     }
   }

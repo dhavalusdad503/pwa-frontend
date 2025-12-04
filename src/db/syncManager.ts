@@ -1,25 +1,25 @@
-import { getMeta, putItems, setMeta } from "@/db";
-import moment from "moment";
-import { NewShiftSchemaType } from "@/types";
+import moment from 'moment';
 
-export const syncManager = async (userShifts: NewShiftSchemaType[] | undefined) => {
+import { putItems, setMeta } from '@/db';
+import { NewShiftSchemaType } from '@/types';
+
+export const syncManager = async (userShifts: NewShiftSchemaType[]) => {
   try {
-    const lastSync = await getMeta('lastSyncAt') || 0;
+    // const lastSync = await getMeta('lastSyncAt') || 0;
 
     // Only sync if we have data
-    if (userShifts && userShifts.length > 0) {
-      await putItems(userShifts);
-    } else {
-      console.log('No shifts to sync');
-    }
+    // if (userShifts && userShifts.length > 0) {
+    await putItems(userShifts);
+    // } else {
+    //   console.log('No shifts to sync');
+    // }
 
     // Update timestamp
-    await setMeta("lastSyncAt", moment().format());
+    await setMeta('lastSyncAt', moment().format());
   } catch (error) {
     console.error('Error in syncManager:', error);
   }
-}
-
+};
 // export async function syncWithServer() {
 //   const lastSync = await getMeta("lastSyncAt") || 0;
 

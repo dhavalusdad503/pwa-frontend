@@ -1,12 +1,15 @@
+import { useEffect, useState } from 'react';
+
+import { useGetUserShifts } from '@api/newShift';
 import { ROUTES } from '@constant/routesPath';
+import AppointmentCard from '@features/HomeVisits/AppointmentCard';
 import Button from '@lib/Common/Button';
 import { useNavigate } from 'react-router-dom';
-import { useEffect, useState } from 'react';
-import { useGetUserShifts } from '@api/newShift';
-import { NewShiftSchemaType } from '@/types';
+
 import { getAllForms } from '@/db';
-import AppointmentCard from '@features/HomeVisits/AppointmentCard';
 import { syncManager } from '@/db/syncManager';
+import { NewShiftSchemaType } from '@/types';
+
 
 
 const HomeVisits = () => {
@@ -27,11 +30,17 @@ const HomeVisits = () => {
   }
 
   useEffect(() => {
-    // 1. Load instantly from IndexedDB
-    loadLocal();
+    // // 1. Load instantly from IndexedDB
+    // loadLocal();
 
-    // 2. Sync with server (pass userShifts data)
-    syncManager(userShifts).then(loadLocal);
+    // // 2. Sync with server (pass userShifts data)
+    // syncManager(userShifts).then(loadLocal);
+    
+    if (navigator.onLine) {
+      syncManager(userShifts).then(loadLocal);
+    } else {
+      loadLocal()
+    }
   }, [userShifts]);
 
   return (

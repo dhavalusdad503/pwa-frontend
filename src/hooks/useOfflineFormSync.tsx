@@ -1,7 +1,9 @@
+import { useEffect, useState, createContext, useContext, ReactNode } from "react";
+
+import { useCreateShift } from "@api/newShift";
+
 import { deleteItem, getUnsyncedForms, saveFormOffline } from "@/db";
 import { NewShiftSchemaType } from "@/types/index";
-import { useCreateShift } from "@api/newShift";
-import { useEffect, useState, createContext, useContext, ReactNode } from "react";
 
 // Internal hook that handles the sync logic
 const useOfflineFormSyncLogic = () => {
