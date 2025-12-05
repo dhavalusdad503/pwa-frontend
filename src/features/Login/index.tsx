@@ -1,16 +1,17 @@
 import { useLogin } from '@api/auth';
 import { tokenStorage } from '@api/tokenStorage';
 import { getDefaultRouteByRole } from '@config/defaultRoutes';
+import { ROUTES } from '@constant/routesPath';
 import { yupResolver } from '@hookform/resolvers/yup';
 import Button from '@lib/Common/Button';
 import Icon from '@lib/Common/Icon';
 import InputField from '@lib/Common/Input';
 import PasswordField from '@lib/Common/PasswordField';
 import { dispatchSetUser } from '@redux/dispatch/user.dispatch';
+import { LoginSchema, LoginSchemaType } from '@schema/authSchema';
 import { useForm, type SubmitHandler } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 
-import { useLoginSchema, type LoginSchemaType } from '../../schema/loginSchema';
 
 const defaultValues = {
   email: '',
@@ -25,7 +26,7 @@ const Login = () => {
   } = useForm<LoginSchemaType>({
     mode: 'onChange',
     defaultValues: defaultValues,
-    resolver: yupResolver(useLoginSchema)
+    resolver: yupResolver(LoginSchema)
   });
   const { mutateAsync: login, isPending: isLoginPending } = useLogin();
 
@@ -37,8 +38,8 @@ const Login = () => {
     if (success && data) {
       const { user, token, refreshToken } = data;
       if (token) {
-        tokenStorage.setTokens({ accessToken: token });
-        if (refreshToken) tokenStorage.setRefreshToken(refreshToken);
+        await tokenStorage.setTokens({ accessToken: token });
+        if (refreshToken) await tokenStorage.setRefreshToken(refreshToken);
         dispatchSetUser({ ...user, token, refreshToken });
         navigate(getDefaultRouteByRole(user?.role?.name));
       }
@@ -94,7 +95,7 @@ const Login = () => {
                 variant="none"
                 title="Forgot Password?"
                 className="font-bold text-primary !p-0"
-                // onClick={handleForgotPassword}
+                onClick={() => navigate(ROUTES.FORGET_PASSWORD.path)}
               />
             </div>
           </div>
@@ -109,7 +110,6 @@ const Login = () => {
               isDisabled={isLoginPending}
               onClick={handleSubmit(handleFormSubmit)}
             />
-
             {/* <div className="relative">
               <div className="h-1px bg-primarylight w-full my-2.5" />
               <div className="absolute left-2/4 -translate-x-2/4 bg-white rounded-full px-3.5 -top-0.5">

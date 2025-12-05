@@ -8,6 +8,9 @@ const Login = lazy(() => import('@pages/Login'));
 const HomeVisits = lazy(() => import('@pages/HomeVisit'));
 const NewShift = lazy(() => import('@pages/NewShift'));
 const Root = lazy(() => import('@pages/Root'));
+const ForgetPassword = lazy(() => import('@pages/ForgetPassword/ForgetPasswordPage'))
+// const OtpConfirmation = lazy(() => import('@pages/ForgetPassword/OtpConfirmationPage'))
+const ResetPassword = lazy(() => import('@pages/ForgetPassword/ResetPasswordPage'))
 // const Product = lazy(() => import('@/pages/Product'));
 // const Category = lazy(() => import('@/pages/Category'));
 // const User = lazy(() => import('@/pages/User'));
@@ -17,21 +20,24 @@ const Root = lazy(() => import('@pages/Root'));
 // const Register = lazy(() => import('@/pages/Register'));
 export type RoutesType = {
   [key in
-    | 'DEFAULT'
-    | 'LOGIN'
-    | 'HOME_VISIT'
-    | 'NEW_SHIFT'
-    | 'CAREGIVER_DASHBOARD'
-    | 'ADMIN_DASHBOARD'
-    | 'SUPERVISOR_DASHBOARD'
-    // | 'PRODUCT'
-    // | 'CATEGORY'
-    // | 'USER'
-    // | 'ADD_USER'
-    // | 'EDIT_USER'
-    // | 'VIEW_USER'
-    // | 'REGISTER'
-    | 'NOT_FOUND']: {
+  | 'DEFAULT'
+  | 'LOGIN'
+  | 'HOME_VISIT'
+  | 'NEW_SHIFT'
+  | 'CAREGIVER_DASHBOARD'
+  | 'ADMIN_DASHBOARD'
+  | 'SUPERVISOR_DASHBOARD'
+  | 'FORGET_PASSWORD'
+  // | 'OTP_CONFIRMATION'
+  | 'RESET_PASSWORD'
+  // | 'PRODUCT'
+  // | 'CATEGORY'
+  // | 'USER'
+  // | 'ADD_USER'
+  // | 'EDIT_USER'
+  // | 'VIEW_USER'
+  // | 'REGISTER'
+  | 'NOT_FOUND']: {
     path: string;
     headerName?: string;
     routeType: 'public' | 'authenticate' | 'un-authenticate';
@@ -55,6 +61,24 @@ export const ROUTES: RoutesType = {
     routeType: 'un-authenticate',
     headerName: 'Login',
     element: <Login />
+  },
+  FORGET_PASSWORD: {
+    path: '/forget-password',
+    routeType: 'un-authenticate',
+    headerName: 'Forget Password',
+    element: <ForgetPassword />
+  },
+  // OTP_CONFIRMATION: {
+  //   path: '/otp-confirmation',
+  //   routeType: 'un-authenticate',
+  //   headerName: 'Otp Confirmation',
+  //   element: <OtpConfirmation />
+  // },
+  RESET_PASSWORD: {
+    path: '/reset-password',
+    routeType: 'un-authenticate',
+    headerName: 'Reset Password',
+    element: <ResetPassword />
   },
   CAREGIVER_DASHBOARD: {
     path: '/caregiver/dashboard',

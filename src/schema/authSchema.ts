@@ -3,12 +3,19 @@ import * as yup from 'yup';
 
 export const imageMimeRegex = /^image\/.*/;
 
-export const useLoginSchema = yup.object({
+export const LoginSchema = yup.object({
   email: validationRules.email({
     fieldName: 'Email',
-    isRequired: true
+    isRequired: true,
+    isTrim: true
   }),
-  password: yup.string().trim().required('New password is required')
+  password: validationRules
+    .string({
+      fieldName: 'Password',
+      isRequired: true,
+      isTrim: true
+    })
+    .min(8, 'Password must be at least 8 characters')
   // .min(8, 'New password must be at least 8 characters')
   // .max(20, 'New password cannot exceed 20 characters')
   // .matches(/[A-Z]/, 'New password must contain at least one uppercase letter')
@@ -48,4 +55,45 @@ export const useLoginSchema = yup.object({
   //       otherwise: schema => schema.optional(),
   //     }),
 });
-export type LoginSchemaType = yup.InferType<typeof useLoginSchema>;
+export type LoginSchemaType = yup.InferType<typeof LoginSchema>;
+
+//Reset Password schema
+
+export const resetPasswordSchema = yup.object({
+  password: validationRules
+    .string({
+      fieldName: 'Password',
+      isRequired: true,
+      isTrim: true
+    })
+    .required('Password is required')
+    .min(8, 'Password must be at least 6 characters'),
+
+  confirmPassword: validationRules
+    .string({
+      fieldName: 'Confirm password',
+      isRequired: true,
+      isTrim: true
+    })
+    .test(
+      'match-confirm-password',
+      'Password And Confirm password should match',
+      function (value) {
+        const { password } = this.parent;
+        return password === value;
+      }
+    )
+});
+
+export type ResetPasswordType = yup.InferType<typeof resetPasswordSchema>;
+
+//Forget Password schema
+
+export const forgetPasswordSchema = yup.object({
+  email: validationRules.email({
+    fieldName: 'Email ',
+    isRequired: true
+  })
+});
+
+export type ForgetPasswordType = yup.InferType<typeof forgetPasswordSchema>;

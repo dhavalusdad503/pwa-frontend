@@ -1,5 +1,11 @@
 // import { ROUTES } from '@/constant/routesPath';
 
+import Button from "@lib/Common/Button";
+import Icon from "@lib/Common/Icon";
+import { dispatchClearUser } from "@redux/dispatch/user.dispatch";
+import { currentUser } from "@redux/ducks/user";
+import { useSelector } from "react-redux";
+
 // interface MenuItems {
 //   label: string;
 //   path: string;
@@ -31,11 +37,12 @@ const Header = () => {
   // const routeData = Object.values(ROUTES).find((route) =>
   //   matchPath(route.path, location.pathname)
   // );
+  const { firstName, role } = useSelector(currentUser)
 
   return (
     <>
       <nav className="border-gray-200 bg-gray-500">
-        <div className="flex flex-wrap items-center mx-auto p-4">
+        <div className="flex justify-between  items-center p-4">
           {/* <ul className="flex gap-3">
             {menuItems.map((item) => (
               <li key={item.path}>
@@ -52,6 +59,17 @@ const Header = () => {
               </li>
             ))}
           </ul> */}
+          <h1 className="text-white">{`${firstName} (${role?.name} )`}</h1>
+
+          <Button
+            variant="outline"
+            title="Logout "
+            className=" border-2 rounded-xl"
+            isIconFirst={true}
+            icon={<Icon name="logout" />}
+            parentClassName="w-fit mt-5"
+            onClick={() => dispatchClearUser()}
+          />
         </div>
       </nav>
       {/* <div className="p-3 bg-green-500 text-white">

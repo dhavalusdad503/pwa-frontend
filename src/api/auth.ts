@@ -1,10 +1,10 @@
-import { axiosPost } from '@api/axios';
+import { axiosGet, axiosPost } from '@api/axios';
 import { authQueryKey } from '@api/common/auth.querykey';
 import { User } from '@api/types/user.dto';
 import { UseMutationOptions } from '@tanstack/react-query';
 import { AxiosError } from 'axios';
 
-import { useMutation } from '@/api';
+import { useMutation, useQuery } from '@/api';
 
 export interface LoginResponse {
   success: boolean;
@@ -39,6 +39,42 @@ export const useLogin = (
     },
     showToast: true,
     ...options
+  });
+};
+
+export const useValidateLink = (params: { token: string | null }) => {
+  return useQuery({
+    queryKey: ['validate-link'],
+    queryFn: async () => {
+      const response = await axiosGet(`/auth/validate-link`, { params });
+      return response.data;
+    },
+    showToast: true
+  });
+};
+
+export const useResetPassword = () => {
+  return useMutation({
+    mutationKey: authQueryKey.resetPassword(),
+    mutationFn: async (data: { token: string | null; password: string }) => {
+      const response = await axiosPost('/auth/reset-password', {
+        data
+      });
+      return response.data;
+    },
+    showToast: true
+  });
+};
+export const useForgetPassword = () => {
+  return useMutation({
+    mutationKey: authQueryKey.forgetPassword(),
+    mutationFn: async (data: { email: string }) => {
+      const response = await axiosPost('/auth/forget-password', {
+        data
+      });
+      return response.data;
+    },
+    showToast: true
   });
 };
 
