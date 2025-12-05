@@ -1,3 +1,5 @@
+import { secureDB } from '@/db/secureDataBase';
+
 export interface AuthTokens {
   accessToken: string;
 }
@@ -9,30 +11,42 @@ const TOKEN_KEYS = {
 type StorageType = 'localStorage' | 'sessionStorage';
 
 export const tokenStorage = {
-  getAccessToken: (
+  getAccessToken: async (
     storageType: StorageType = 'localStorage'
-  ): string | null => {
+  ): Promise<string | null> => {
     const storage =
       storageType === 'sessionStorage' ? sessionStorage : localStorage;
-    return storage.getItem(TOKEN_KEYS.ACCESS_TOKEN);
+    const encryptedToken = storage.getItem(TOKEN_KEYS.ACCESS_TOKEN);
+    if (encryptedToken) {
+      const decryptedToken = await secureDB.decrypt(encryptedToken);
+      return decryptedToken as string;
+    }
+    return null;
   },
 
-  getRefreshToken: (
+  getRefreshToken: async (
     storageType: StorageType = 'localStorage'
-  ): string | null => {
+  ): Promise<string | null> => {
     const storage =
       storageType === 'sessionStorage' ? sessionStorage : localStorage;
-    return storage.getItem(TOKEN_KEYS.REFRESH_TOKEN);
+    const encryptedToken = storage.getItem(TOKEN_KEYS.REFRESH_TOKEN);
+    if (encryptedToken) {
+      const decryptedToken = await secureDB.decrypt(encryptedToken);
+      return decryptedToken as string;
+    }
+    return null;
   },
 
-  setTokens: (tokens: AuthTokens): void => {
-    localStorage.setItem(TOKEN_KEYS.ACCESS_TOKEN, tokens.accessToken);
-    sessionStorage.setItem(TOKEN_KEYS.ACCESS_TOKEN, tokens.accessToken);
+  setTokens: async (tokens: AuthTokens): Promise<void> => {
+    const encryptedToken = await secureDB.encrypt(tokens.accessToken);
+    localStorage.setItem(TOKEN_KEYS.ACCESS_TOKEN, encryptedToken);
+    sessionStorage.setItem(TOKEN_KEYS.ACCESS_TOKEN, encryptedToken);
   },
 
-  setRefreshToken: (refreshToken: string): void => {
-    localStorage.setItem(TOKEN_KEYS.REFRESH_TOKEN, refreshToken);
-    sessionStorage.setItem(TOKEN_KEYS.REFRESH_TOKEN, refreshToken);
+  setRefreshToken: async (refreshToken: string): Promise<void> => {
+    const encryptedToken = await secureDB.encrypt(refreshToken);
+    localStorage.setItem(TOKEN_KEYS.REFRESH_TOKEN, encryptedToken);
+    sessionStorage.setItem(TOKEN_KEYS.REFRESH_TOKEN, encryptedToken);
   },
 
   clearTokens: (): void => {

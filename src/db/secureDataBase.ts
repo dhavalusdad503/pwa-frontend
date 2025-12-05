@@ -88,7 +88,7 @@ class SecureDB {
   // -----------------------------
   // ENCRYPT / DECRYPT HELPERS
   // -----------------------------
-  private async encrypt<T>(value: T) {
+  async encrypt<T>(value: T) {
     const key = await this.getOrCreateKey();
     const iv = randomIV();
     const encoded = encoder.encode(JSON.stringify(value));
@@ -99,22 +99,25 @@ class SecureDB {
       encoded
     );
 
-    return {
-      iv: bufToB64(iv),
-      cipher: bufToB64(cipherBuf)
-    };
+    const ivB64 = bufToB64(iv);
+    const cipherB64 = bufToB64(cipherBuf);
+
+    return `${ivB64}.${cipherB64}`;
   }
 
-  private async decrypt<T>(obj: { iv: string; cipher: string }) {
+  async decrypt<T>(data: string) {
     const key = await this.getOrCreateKey();
-    const iv = new Uint8Array(b64ToBuf(obj.iv));
-    const cipher = b64ToBuf(obj.cipher);
+    const [ivB64, cipherB64] = data.split('.');
+
+    const iv = new Uint8Array(b64ToBuf(ivB64));
+    const cipher = b64ToBuf(cipherB64);
 
     const plainBuf = await crypto.subtle.decrypt(
       { name: 'AES-GCM', iv },
       key,
       cipher
     );
+
     return JSON.parse(decoder.decode(plainBuf)) as T;
   }
 
@@ -132,13 +135,13 @@ class SecureDB {
     const db = await this.dbPromise;
     const encrypted = await db.get(store, key);
     if (!encrypted) return null;
-    return this.decrypt<T>(encrypted);
+    return this.decrypt<T>(encrypted.data);
   }
 
   async getAll<T>(store: string) {
     const db = await this.dbPromise;
     const rows = await db.getAll(store);
-    return Promise.all(rows.map((e) => this.decrypt<T>(e)));
+    return Promise.all(rows.map((e) => this.decrypt<T>(e.data)));
   }
 
   async delete(store: string, key: IDBValidKey) {
@@ -149,7 +152,7 @@ class SecureDB {
   async add<T>(store: string, value: T) {
     const db = await this.dbPromise;
     const encrypted = await this.encrypt<T>(value);
-    return db.add(store, encrypted);
+    return db.add(store, { data: encrypted });
   }
 
   // -----------------------------
@@ -158,7 +161,7 @@ class SecureDB {
   async put<T>(store: string, value: T, key?: IDBValidKey) {
     const db = await this.dbPromise;
     const encrypted = await this.encrypt(value);
-    return db.put(store, encrypted, key);
+    return db.put(store, { id: key, data: encrypted });
   }
 
   async setMeta<T>(key: string, value: T) {
@@ -212,6 +215,7 @@ class SecureDB {
     await tx.done;
   }
   async bulkAdd<T>(storeName: string, items: T[]): Promise<void> {
+    console.log('im hereee');
     const db = await this.dbPromise;
     // 1. Pre-encrypt everything BEFORE transaction
     const encryptedItems = [];
@@ -219,6 +223,7 @@ class SecureDB {
     for (const item of items) {
       try {
         const enc = await this.encrypt<T>(item); // OK here
+        console.log({ enc });
         encryptedItems.push(enc);
       } catch (err) {
         console.error('Encryption failed for item:', item, err);
@@ -232,7 +237,7 @@ class SecureDB {
 
     // 3. Bulk insert without ANY await
     for (const enc of encryptedItems) {
-      store.add(enc);
+      store.add({ data: enc });
     }
 
     // 4. Final single await
