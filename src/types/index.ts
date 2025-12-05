@@ -12,3 +12,8 @@ export type NewShiftSchemaType = Omit<NewShiftFormSchemaType, 'serviceType'> & {
   synced: number;
   patient?: patientData;
 };
+
+export type UpdatedShiftType = {
+  modifiedVisits: NewShiftSchemaType[];
+  deletedVisits: { id: string }[];
+};

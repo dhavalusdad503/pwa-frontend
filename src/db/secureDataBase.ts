@@ -1,3 +1,4 @@
+import { NewShiftSchemaType } from '@/types';
 import { IDBPDatabase, openDB } from 'idb';
 
 // ===== DB CONFIG =====
@@ -88,7 +89,7 @@ class SecureDB {
   // -----------------------------
   // ENCRYPT / DECRYPT HELPERS
   // -----------------------------
-  private async encrypt<T>(value: T) {
+  private async encrypt<NewShiftSchemaType>(value: NewShiftSchemaType) {
     const key = await this.getOrCreateKey();
     const iv = randomIV();
     const encoded = encoder.encode(JSON.stringify(value));
@@ -105,10 +106,11 @@ class SecureDB {
     };
   }
 
-  private async decrypt<T>(obj: { iv: string; cipher: string }) {
+  private async decrypt<T>(obj: { id: string, data: { iv: string; cipher: string } }) {
+    const { data } = obj;
     const key = await this.getOrCreateKey();
-    const iv = new Uint8Array(b64ToBuf(obj.iv));
-    const cipher = b64ToBuf(obj.cipher);
+    const iv = new Uint8Array(b64ToBuf(data.iv));
+    const cipher = b64ToBuf(data.cipher);
 
     const plainBuf = await crypto.subtle.decrypt(
       { name: 'AES-GCM', iv },
@@ -138,6 +140,7 @@ class SecureDB {
   async getAll<T>(store: string) {
     const db = await this.dbPromise;
     const rows = await db.getAll(store);
+    console.log("tjhese are all rows", rows);
     return Promise.all(rows.map((e) => this.decrypt<T>(e)));
   }
 
@@ -146,10 +149,20 @@ class SecureDB {
     return db.delete(store, key);
   }
 
-  async add<T>(store: string, value: T) {
+  async deleteMany(store: string, ids: IDBValidKey[]) {
     const db = await this.dbPromise;
-    const encrypted = await this.encrypt<T>(value);
-    return db.add(store, encrypted);
+    const tx = db.transaction(store, "readwrite");
+    for (const id of ids) {
+      tx.store.delete(id);
+    }
+    await tx.done;
+}
+
+  async add<T>(store: string, value: NewShiftSchemaType) {
+    const db = await this.dbPromise;
+    const { id } = value;
+    const encrypted = await this.encrypt<NewShiftSchemaType>(value);
+    return db.add(store, { ...(id && { id }), data: encrypted });
   }
 
   // -----------------------------
@@ -157,8 +170,9 @@ class SecureDB {
   // -----------------------------
   async put<T>(store: string, value: T, key?: IDBValidKey) {
     const db = await this.dbPromise;
+    const {id} = value;
     const encrypted = await this.encrypt(value);
-    return db.put(store, encrypted, key);
+    return db.put(store, { ...(id && { id }), data: encrypted }, key);
   }
 
   async setMeta<T>(key: string, value: T) {
@@ -211,15 +225,16 @@ class SecureDB {
     await store.clear();
     await tx.done;
   }
-  async bulkAdd<T>(storeName: string, items: T[]): Promise<void> {
+  async bulkAdd<T>(storeName: string, items: NewShiftSchemaType[]): Promise<void> {
     const db = await this.dbPromise;
     // 1. Pre-encrypt everything BEFORE transaction
     const encryptedItems = [];
 
     for (const item of items) {
       try {
-        const enc = await this.encrypt<T>(item); // OK here
-        encryptedItems.push(enc);
+        const { id } = item;
+        const enc = await this.encrypt<NewShiftSchemaType>(item); // OK here
+        encryptedItems.push({ ...(id && { id }), data: enc });
       } catch (err) {
         console.error('Encryption failed for item:', item, err);
         throw err; // stop early
@@ -238,52 +253,6 @@ class SecureDB {
     // 4. Final single await
     await tx.done;
   }
-  //   async putItems(storeName: string, items: any[]) {
-  //     const db = await this.dbPromise;
-  //     const tx = db.transaction(storeName, 'readwrite');
-  //     const store = tx.objectStore(storeName);
-
-  //     try {
-  //       for (const serverItem of items) {
-  //         // Case 1: serverItem has an id → merge with existing
-  //         if (serverItem.id !== undefined && serverItem.id !== null) {
-  //           const encryptedLocal = await store.get(serverItem.id);
-
-  //           if (encryptedLocal) {
-  //             const localPlain = await this.decrypt(encryptedLocal);
-
-  //             const mergedPlain = {
-  //               ...localPlain,
-  //               ...serverItem, // server fields overwrite local
-  //               synced: localPlain.synced ?? 1
-  //             };
-
-  //             const encrypted = await this.encrypt(mergedPlain);
-  //             encrypted.id = serverItem.id;
-
-  //             await store.put(encrypted);
-  //           } else {
-  //             // New server item
-  //             const newItem = { ...serverItem, synced: 1 };
-  //             const encrypted = await this.encrypt(newItem);
-  //             encrypted.id = serverItem.id;
-  //             store.put(encrypted);
-  //           }
-  //         } else {
-  //           // Case 2: No ID → local new item
-  //           const newItem = { ...serverItem, synced: 1 };
-  //           const encrypted = await this.encrypt(newItem);
-  //           store.add(encrypted);
-  //         }
-  //       }
-
-  //       await tx.done;
-  //     } catch (err) {
-  //       tx.abort();
-  //       console.error('Error in putItems:', err);
-  //       throw err;
-  //     }
-  //   }
 }
 
 // Create SINGLE GLOBAL INSTANCE

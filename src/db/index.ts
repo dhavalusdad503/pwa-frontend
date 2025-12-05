@@ -1,6 +1,6 @@
 // db.ts
-import { secureDB } from '@/db/secureDataBase';
 import { NewShiftSchemaType } from '@/types/index';
+import { secureDB } from '@/db/secureDataBase';
 
 const VITE_IND_DB_TABLE = import.meta.env.VITE_IND_DB_TABLE || 'visits';
 
@@ -185,6 +185,7 @@ export async function setMeta(key: string, value: string) {
 //   }
 // }
 export async function putItems(items: NewShiftSchemaType[]) {
+
   const ShiftData = items?.map((item) => {
     const { patient, ...rest } = item;
     return {
@@ -195,4 +196,8 @@ export async function putItems(items: NewShiftSchemaType[]) {
   });
   await secureDB.clearStore(VITE_IND_DB_TABLE);
   await secureDB.bulkAdd<NewShiftSchemaType>(VITE_IND_DB_TABLE, ShiftData);
+}
+
+export async function deleteMany(ids: string[]) {
+  await secureDB.deleteMany(VITE_IND_DB_TABLE, ids);
 }
