@@ -42,7 +42,7 @@ const ResetPassword = () => {
     const handleFormSubmit: SubmitHandler<ResetPasswordType> = async ({
         password
     }) => {
-        const response = await resetPassword({ token, password });
+        const response = await resetPassword({ token, new_password: password });
         const { success, data } = response;
         if (success && data) {
             const { user, token, refreshToken } = data;

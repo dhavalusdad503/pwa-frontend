@@ -46,17 +46,19 @@ export const useValidateLink = (params: { token: string | null }) => {
   return useQuery({
     queryKey: ['validate-link'],
     queryFn: async () => {
-      const response = await axiosGet(`/auth/validate-link`, { params });
+      const response = await axiosGet(`/auth/validate-token`, { params });
       return response.data;
-    },
-    showToast: true
+    }
   });
 };
 
 export const useResetPassword = () => {
   return useMutation({
     mutationKey: authQueryKey.resetPassword(),
-    mutationFn: async (data: { token: string | null; password: string }) => {
+    mutationFn: async (data: {
+      token: string | null;
+      new_password: string;
+    }) => {
       const response = await axiosPost('/auth/reset-password', {
         data
       });
