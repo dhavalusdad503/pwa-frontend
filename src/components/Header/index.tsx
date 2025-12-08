@@ -30,14 +30,20 @@ import { useSelector } from "react-redux";
 //   //   },
 //   //   { label: 'User', path: ROUTES.USER.path }
 // ];
+import { useOfflineSync } from '@hooks/useOfflineFormSync';
 
 const Header = () => {
-  // const location = useLocation();
+  const { triggerFullSync, isSyncing, isOnline, synced } = useOfflineSync();
 
   // const routeData = Object.values(ROUTES).find((route) =>
   //   matchPath(route.path, location.pathname)
   // );
-  const { firstName, role } = useSelector(currentUser)
+  const { firstName, role } = useSelector(currentUser);
+  const handleSyncClick = () => {
+    if (!isSyncing && isOnline) {
+      triggerFullSync();  // Full sync - fetches all visits
+    }
+  };
 
   return (
     <>
@@ -72,9 +78,6 @@ const Header = () => {
           />
         </div>
       </nav>
-      {/* <div className="p-3 bg-green-500 text-white">
-        <h3 className="text-lg font-bold">{routeData?.headerName || 'Home'}</h3>
-      </div> */}
     </>
   );
 };
