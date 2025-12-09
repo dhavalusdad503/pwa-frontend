@@ -2,9 +2,9 @@ import { NewShiftSchemaType } from '@/types';
 import { IDBPDatabase, openDB } from 'idb';
 
 // ===== DB CONFIG =====
-const VITE_IND_DB_NAME = 'Abhishek_DB';
+const VITE_IND_DB_NAME = import.meta.env.VITE_DB_NAME || 'nurse-appointment';
 const DB_VERSION = 2;
-const DEVICE_KEY_ID = 'device-key';
+const DEVICE_KEY_ID = import.meta.env.VITE_DEVICE_KEY_ID || 'device-key';
 const VITE_IND_DB_TABLE = import.meta.env.VITE_IND_DB_TABLE || 'visits';
 type DB = IDBPDatabase;
 // Text helpers

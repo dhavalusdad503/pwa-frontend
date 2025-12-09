@@ -73,7 +73,6 @@ const Header = () => {
             className=" border-2 rounded-xl"
             isIconFirst={true}
             icon={<Icon name="logout" />}
-            parentClassName="w-fit mt-5"
             onClick={() => dispatchClearUser()}
           />
         </div>
