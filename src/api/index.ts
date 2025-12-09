@@ -74,7 +74,7 @@ export const useMutation = <
         } catch (error) {
           const axiosError = error as AxiosError;
           const responseData = axiosError.response?.data as CustomBackendError;
-          const message = responseData?.message || 'Something went wrong';
+          const message = responseData?.message || 'Something went wrong 3';
           const status = axiosError.response?.status;
 
           const isCustomError =
@@ -141,10 +141,11 @@ export const useQuery = <
             }
             return res?.data;
           } catch (error) {
+            console.log({ error });
             const axiosError = error as AxiosError;
             const responseData = axiosError.response
               ?.data as CustomBackendError;
-            const message = responseData?.message || 'Something went wrong';
+            const message = responseData?.message || 'Something went wrong 2';
             const status = axiosError.response?.status;
 
             const isCustomError =
@@ -228,7 +229,7 @@ export const useInfiniteQuery = <
             const axiosError = error as AxiosError;
             const responseData = axiosError.response
               ?.data as CustomBackendError;
-            const message = responseData?.message || 'Something went wrong';
+            const message = responseData?.message || 'Something went wrong 1';
             const status = axiosError.response?.status;
 
             const isCustomError =

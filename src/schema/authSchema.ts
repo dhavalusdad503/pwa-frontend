@@ -87,6 +87,17 @@ export const resetPasswordSchema = yup.object({
 
 export type ResetPasswordType = yup.InferType<typeof resetPasswordSchema>;
 
+export const confirmPasswordSchema = yup.object({
+  password: validationRules
+    .string({
+      fieldName: 'Password',
+      isRequired: true,
+      isTrim: true
+    })
+    .required('Password is required')
+  // .min(8, 'Password must be at least 6 characters'),
+});
+export type confirmPasswordType = yup.InferType<typeof confirmPasswordSchema>;
 //Forget Password schema
 
 export const forgetPasswordSchema = yup.object({

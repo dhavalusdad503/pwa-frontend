@@ -26,7 +26,6 @@ const AuthenticateRoute: React.FC<PropsWithChildren> = ({ children }) => {
     /\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/gi,
     '/:id'
   );
-
   // Check if current route is accessible for user's role
   if (!isRouteAccessible(normalizedPath)) {
     // Redirect to user's default route if they don't have access to current route

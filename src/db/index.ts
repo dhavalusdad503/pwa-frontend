@@ -1,5 +1,6 @@
 // db.ts
-import { secureDB } from '@/db/secureDataBase';
+// import { secureDB } from '@/db/secureDataBase';
+import { secureDB } from '@/db/oneMoreSecureDb';
 import { NewShiftSchemaType } from '@/types/index';
 
 const VITE_IND_DB_TABLE = import.meta.env.VITE_IND_DB_TABLE || 'visits';

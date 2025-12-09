@@ -31,7 +31,8 @@ const randomIV = () => {
 };
 class SecureDB {
   private dbPromise: Promise<DB>;
-
+  private static readonly RSA_KEY_ID = 'rsa-keypair';
+  private static readonly AES_KEY_ID = 'wrapped-aes-key';
   constructor() {
     this.dbPromise = openDB(VITE_IND_DB_NAME, DB_VERSION, {
       upgrade(db) {
@@ -55,35 +56,138 @@ class SecureDB {
     });
   }
 
-  // -----------------------------
-  // AES KEY MANAGEMENT
-  // -----------------------------
-
-  private async getOrCreateKey(): Promise<CryptoKey> {
+  // ----------------------------------------------------
+  // 1. GET OR CREATE NON-EXTRACTABLE RSA KEYPAIR
+  // ----------------------------------------------------
+  private async getOrCreateRSAKeyPair(): Promise<{
+    privateKey: CryptoKey;
+    publicKey: CryptoKey;
+  }> {
     const db = await this.dbPromise;
-    const stored = await db.get('keys', DEVICE_KEY_ID);
+    // Try to load previously-stored keys
+    const stored = await db.get('keys', SecureDB.RSA_KEY_ID);
 
     if (stored) {
-      return crypto.subtle.importKey(
+      // stored.publicJwk is the exported public JWK (safe to store)
+      // stored.privateKey is the CryptoKey object (structured-cloned)
+      if (stored.privateKey && stored.publicKey) {
+        // privateKey was stored as a CryptoKey (structured-cloned) — reuse it
+        const privateKey = stored.privateKey as CryptoKey;
+
+        // import public key from JWK to get usable CryptoKey (extractable true)
+        const publicKey = await crypto.subtle.importKey(
+          'jwk',
+          stored.publicKey,
+          { name: 'RSA-OAEP', hash: 'SHA-256' },
+          true,
+          ['encrypt', 'wrapKey']
+        );
+
+        return { privateKey, publicKey };
+      }
+
+      // fallback if structure unexpected: remove entry and regenerate below
+    }
+
+    // Generate new RSA pair:
+    const keyPair = await crypto.subtle.generateKey(
+      {
+        name: 'RSA-OAEP',
+        modulusLength: 2048,
+        publicExponent: new Uint8Array([1, 0, 1]),
+        hash: 'SHA-256'
+      },
+      false, // make keys non-extractable by default
+      ['encrypt', 'decrypt', 'wrapKey', 'unwrapKey']
+    );
+
+    const privateKey = keyPair.privateKey;
+    const publicKey = keyPair.publicKey;
+
+    // export only public key (JWK) for storage / reuse
+    const publicJWK = await crypto.subtle.exportKey('jwk', publicKey);
+
+    // Persist into IndexedDB:
+    // - store publicJWK (so other contexts can re-import public key)
+    // - store privateKey CryptoKey itself (structured-clone) so we can use it later to unwrap
+    await db.put(
+      'keys',
+      { publicKey: publicJWK, privateKey },
+      SecureDB.RSA_KEY_ID
+    );
+
+    return { privateKey, publicKey };
+  }
+
+  // ----------------------------------------------------
+  // 2. GET OR CREATE AES KEY (WRAPPED STORAGE)
+  // ----------------------------------------------------
+  private async getOrCreateKey(): Promise<CryptoKey> {
+    const db = await this.dbPromise;
+
+    const { privateKey, publicKey } = await this.getOrCreateRSAKeyPair();
+    const wrappedKeyB64 = await db.get('keys', SecureDB.AES_KEY_ID);
+
+    if (wrappedKeyB64) {
+      const wrappedKey = b64ToBuf(wrappedKeyB64);
+
+      // Unwrap AES key using the stored private CryptoKey
+      return await crypto.subtle.unwrapKey(
         'raw',
-        b64ToBuf(stored),
-        { name: 'AES-GCM' },
+        wrappedKey,
+        privateKey,
+        { name: 'RSA-OAEP' },
+        { name: 'AES-GCM', length: 256 },
         true,
         ['encrypt', 'decrypt']
       );
     }
 
-    const key = await crypto.subtle.generateKey(
+    // Create new AES key
+    const aesKey = await crypto.subtle.generateKey(
       { name: 'AES-GCM', length: 256 },
-      true, // extractable: false = HIGH SECURITY
+      true,
       ['encrypt', 'decrypt']
     );
 
-    const rawKey = await crypto.subtle.exportKey('raw', key);
-    await db.put('keys', bufToB64(rawKey), DEVICE_KEY_ID);
+    // Wrap the AES key using RSA publicKey and store wrapped bytes
+    const wrapped = await crypto.subtle.wrapKey('raw', aesKey, publicKey, {
+      name: 'RSA-OAEP'
+    });
 
-    return key;
+    await db.put('keys', bufToB64(wrapped), SecureDB.AES_KEY_ID);
+    return aesKey;
   }
+
+  // -----------------------------
+  // AES KEY MANAGEMENT
+  // -----------------------------
+
+  // private async getOrCreateKey(): Promise<CryptoKey> {
+  //   const db = await this.dbPromise;
+  //   const stored = await db.get('keys', DEVICE_KEY_ID);
+
+  //   if (stored) {
+  //     return crypto.subtle.importKey(
+  //       'raw',
+  //       b64ToBuf(stored),
+  //       { name: 'AES-GCM' },
+  //       true,
+  //       ['encrypt', 'decrypt']
+  //     );
+  //   }
+
+  //   const key = await crypto.subtle.generateKey(
+  //     { name: 'AES-GCM', length: 256 },
+  //     true, // extractable: false = HIGH SECURITY
+  //     ['encrypt', 'decrypt']
+  //   );
+
+  //   const rawKey = await crypto.subtle.exportKey('raw', key);
+  //   await db.put('keys', bufToB64(rawKey), DEVICE_KEY_ID);
+
+  //   return key;
+  // }
 
   // -----------------------------
   // ENCRYPT / DECRYPT HELPERS
@@ -101,7 +205,7 @@ class SecureDB {
 
     const ivB64 = bufToB64(iv);
     const cipherB64 = bufToB64(cipherBuf);
-
+    console.log(`iv & Cipher :${ivB64}.${cipherB64}`);
     return `${ivB64}.${cipherB64}`;
   }
 
@@ -117,7 +221,6 @@ class SecureDB {
       key,
       cipher
     );
-
     return JSON.parse(decoder.decode(plainBuf)) as T;
   }
 

@@ -9,6 +9,7 @@ import { useNavigate } from 'react-router-dom';
 import { getAllForms } from '@/db';
 import { syncManager } from '@/db/syncManager';
 import { NewShiftSchemaType } from '@/types';
+import SetPin from '@features/HomeVisits/SetPin';
 
 
 
@@ -16,7 +17,6 @@ const HomeVisits = () => {
   const Navigate = useNavigate();
   const { data: userShifts } = useGetUserShifts();
   const [localShifts, setLocalShifts] = useState<NewShiftSchemaType[]>([]);
-
   const handleNewShift = () => {
     // Logic to handle creating a new shift
     Navigate(ROUTES.NEW_SHIFT.path);
@@ -35,7 +35,7 @@ const HomeVisits = () => {
 
     // // 2. Sync with server (pass userShifts data)
     // syncManager(userShifts).then(loadLocal);
-    
+
     if (navigator.onLine) {
       syncManager(userShifts).then(loadLocal);
     } else {
@@ -67,6 +67,7 @@ const HomeVisits = () => {
             <AppointmentCard {...shift} />
           ))}
         </div>
+        <SetPin />
       </div>
     </>
   );
