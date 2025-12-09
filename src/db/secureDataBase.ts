@@ -244,7 +244,13 @@ class SecureDB {
   async getAll<T>(store: string) {
     const db = await this.dbPromise;
     const rows = await db.getAll(store);
-    return Promise.all(rows.map((e) => this.decrypt<T>(e.data)));
+    return await Promise.all(rows.map(async (e) => {
+      const decrypted = await this.decrypt<T>(e.data);
+      return {
+        ...(typeof e.id === 'number' && { tempId: e.id }),
+        ...decrypted
+      };
+    })); // we are taking indexDB ids for rows which are not syned.
   }
 
   async delete(store: string, key: IDBValidKey) {
@@ -265,7 +271,7 @@ class SecureDB {
     const db = await this.dbPromise;
     const { id } = value;
     const encrypted = await this.encrypt<NewShiftSchemaType>(value);
-    return db.add(store, { ...(id && { id }), data: { data: encrypted } });
+    return db.add(store, { ...(id && { id }), data: encrypted });
   }
 
   // -----------------------------
@@ -273,7 +279,7 @@ class SecureDB {
   // -----------------------------
   async put<T>(store: string, value: T, key?: IDBValidKey) {
     const db = await this.dbPromise;
-    const {id} = value;
+    const { id } = value;
     const encrypted = await this.encrypt(value);
     return db.put(store, { id: key, data: encrypted });
   }
@@ -348,8 +354,8 @@ class SecureDB {
     const store = tx.objectStore(storeName);
 
     // 3. Bulk insert without ANY await
-    for (const enc of encryptedItems) {
-      store.add({ data: enc });
+    for (const [i, enc] of encryptedItems.entries()) {
+      store.add({ id: items[i].id, data: enc });
     }
 
     // 4. Final single await

@@ -8,7 +8,7 @@ export const useDataTable = (data: NewShiftSchemaType[], options = { defaultPage
 
   // States
   const [search, setSearch] = useState('');
-  const [sortBy, setSortBy] = useState({ field: null, direction: 'asc' });
+  const [sortBy, setSortBy] = useState({ field: 'submittedAt', direction: 'desc' });
   const [pageSize, setPageSize] = useState(defaultPageSize);
   const [currentPage, setCurrentPage] = useState(1);
 
@@ -33,13 +33,27 @@ export const useDataTable = (data: NewShiftSchemaType[], options = { defaultPage
     if (sortBy.field == null) return filteredData;
 
     return [...filteredData].sort((a, b) => {
-      const aVal = a[sortBy.field];
-      const bVal = b[sortBy.field];
-      return sortBy.direction === 'asc'
-        ? (aVal > bVal ? 1 : -1)
-        : (aVal < bVal ? 1 : -1);
+      let aVal = a[sortBy.field];
+      let bVal = b[sortBy.field];
+
+      // If values are ISO date strings → convert to timestamps
+      if (typeof aVal === "string" && typeof bVal === "string") {
+        const aDate = Date.parse(aVal);
+        const bDate = Date.parse(bVal);
+
+        if (!isNaN(aDate) && !isNaN(bDate)) {
+          aVal = aDate;
+          bVal = bDate;
+        }
+      }
+
+      return sortBy.direction === "asc"
+        ? aVal > bVal ? 1 : -1
+        : aVal < bVal ? 1 : -1;
     });
+
   }, [filteredData, sortBy]);
+
 
   // Pagination
   const totalPages = Math.ceil(sortedData.length / pageSize);

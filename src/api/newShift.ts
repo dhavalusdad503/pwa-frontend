@@ -14,6 +14,17 @@ export const useCreateShift = () => {
   });
 };
 
+export const useCreateBulkShift = () => {
+  return useMutation({
+    mutationKey: shiftQueryKey.createBulkShift(),
+    mutationFn: async (data: object) => {
+      const response = await axiosPost('/visit/bulk-create', { data });
+      return response.data;
+    },
+    showToast: true
+  });
+};
+
 export const useLocalVisits = () => {
   return useQuery({
     queryKey: ['local-visits'],
@@ -21,8 +32,8 @@ export const useLocalVisits = () => {
       const data = await getAllForms();
       return { data }; 
     },
-    staleTime: 0, 
-    cacheTime: 0,
+    staleTime: 0,
+    networkMode: 'always'
   });
 };
 
@@ -35,7 +46,6 @@ export const useFetchAllVisits = (enabled: boolean = false) => {
     },
     enabled,
     staleTime: 0,
-    cacheTime: 0,
     retry: false,
   });
 };

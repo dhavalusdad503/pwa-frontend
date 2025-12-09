@@ -23,7 +23,7 @@ const defaultValues = {
   notes: '', // Default value provided
   patientName: '', // Default value provided
   address: '', // Default value provided
-  submittedAt: new Date().toISOString(), // Default value provided
+  submittedAt: moment().toISOString(),
 };
 
 const typeOptions: OptionTypeGlobal[] = [
@@ -94,17 +94,22 @@ const Shift = () => {
   const handleFormSubmit: SubmitHandler<NewShiftFormSchemaType> = async (
     formData
   ) => {
-
     const data: Omit<NewShiftSchemaType, 'synced'> = {
       ...formData,
       endedAt: moment(formData.endedAt).toISOString(),
       startedAt: moment(formData.startedAt).toISOString(),
       orgName: 'organization1',
       serviceType: formData.serviceType?.value || null,
+      submittedAt: moment().toISOString(),
     }
 
     await saveForm(data);
     Navigate(ROUTES.HOME_VISIT.path);
+  };
+
+  const handleFormError = (errors: any) => {
+    console.error("❌ FORM VALIDATION FAILED:", errors);
+    console.log("Current form values:", getValues());
   };
   return (
     <>
@@ -368,7 +373,7 @@ const Shift = () => {
               title={isCreatePending ? 'Submitting...' : 'Submit'}
               className="w-sm rounded-10px ! !font-bold !leading-5"
               isDisabled={isCreatePending}
-              onClick={handleSubmit(handleFormSubmit)}
+              onClick={handleSubmit(handleFormSubmit, handleFormError)}
             />
           </div>
         </div>

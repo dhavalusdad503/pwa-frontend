@@ -30,8 +30,10 @@ const HomeVisits = () => {
   } = useDataTable(localShifts);
 
   useEffect(() => {
-    if (synced) {
+    if (isOnline && synced) {
       refetch();
+    } else if (!isOnline) {
+      refetch()
     }
   }, [synced, refetch]);
 

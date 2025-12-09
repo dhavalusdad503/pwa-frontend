@@ -1,7 +1,8 @@
 import { useEffect, useState, createContext, useContext, ReactNode, useCallback, useRef } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { useCreateShift, useFetchAllVisits, useFetchUpdatedVisits } from "@api/newShift";
-import { deleteItem, getUnsyncedForms, saveFormOffline, setMeta, putItems } from "@/db";
+import { useCreateBulkShift } from "@api/newShift";
+import { axiosGet } from "@api/axios";
+import { getUnsyncedForms, setMeta, putItems, deleteItem, saveFormOffline } from "@/db";
 import { secureDB } from "@/db/secureDataBase";
 import { syncManager } from "@/db/syncManager";
 import { NewShiftSchemaType } from "@/types/index";
@@ -21,17 +22,14 @@ const useOfflineFormSyncLogic = () => {
   const [isOnline, setIsOnline] = useState<boolean>(navigator.onLine);
   const [synced, setSynced] = useState<boolean>(false);
   const [isSyncing, setIsSyncing] = useState<boolean>(false);
-  const [lastSyncEpoch, setLastSyncEpoch] = useState<number>(0);
   const [syncPhase, setSyncPhase] = useState<'idle' | 'uploading' | 'downloading'>('idle');
 
   const isSyncingRef = useRef<boolean>(false);
   const hasInitialSyncRun = useRef<boolean>(false);
 
   const queryClient = useQueryClient();
-  const { mutateAsync: createShift } = useCreateShift();
+  const { mutateAsync: createBulkShift } = useCreateBulkShift();
 
-  const allVisitsQuery = useFetchAllVisits(false);
-  const updatedVisitsQuery = useFetchUpdatedVisits(lastSyncEpoch, false);
 
   useEffect(() => {
     const handleOnline = () => setIsOnline(true);
@@ -50,42 +48,53 @@ const useOfflineFormSyncLogic = () => {
     const unsynced: NewShiftSchemaType[] = await getUnsyncedForms();
 
     if (!unsynced.length) return true;
-    for (const item of unsynced) {
-      const { id, synced: _synced, ...payload } = item;
 
-      try {
-        const data = await createShift(payload);
+    const unsyncedMap = new Map(unsynced.map((item) => [item.tempId, item]));
 
-        if (typeof id === 'number') {
-          const dbId: string = data?.id;
-          await deleteItem(id);
-          await saveFormOffline({ ...payload, id: dbId, synced: 1 });
+    try {
+      const result = await createBulkShift(unsynced);
+
+      if (result.success && result.data) {
+        const updatdIdMap = result.data;
+        for (const item of updatdIdMap) {
+
+          //delting old visit from indexDB
+          await deleteItem(item.tempId);
+          const unsyncedItem = unsyncedMap.get(item.tempId);
+          if (!unsyncedItem) {
+            throw new Error("Item not found in unsynced map");
+          };
+          delete unsyncedItem?.tempId;
+          //Adding same visit with DB id and synced flag 
+          await saveFormOffline({
+            ...unsyncedItem,
+            id: item.id,
+            synced: 1,
+          })
         }
-      } catch (error) {
-        console.error('Upload failed for item', id, error);
-        return false; // Stop on first failure
+      } else {
+        throw new Error("Failed to create bulk shift");
       }
+    } catch (error) {
+      console.log("error in uploadPendingItems", error);
+      return false;
     }
-
     return true;
-  }, [createShift]);
+  }, [createBulkShift]);
 
   // Download ALL visits (for full sync button)
   const downloadAllVisits = useCallback(async () => {
     try {
-      console.log('[FullSync] Fetching all visits from server...');
-      const result = await allVisitsQuery.refetch();
+      const response = await axiosGet('/visit');
 
-      if (result.data) {
-        const data: NewShiftSchemaType[] = result.data?.data || result.data || [];
-        console.log(`[FullSync] Received ${data.length} visits`);
+      if (response) {
+        const data: NewShiftSchemaType[] = response.data || response || [];
 
         if (data && data.length > 0) {
           // Clear and replace all data
           await putItems(data);
         }
         await setMeta('lastSyncAt', moment().format());
-        console.log('[FullSync] Complete - IndexedDB updated');
       }
 
       return true;
@@ -93,7 +102,7 @@ const useOfflineFormSyncLogic = () => {
       console.error('[FullSync] Failed:', error);
       return false;
     }
-  }, [allVisitsQuery]);
+  }, []);
 
   // Download server changes (incremental or initial based on lastSyncAt)
   const downloadServerChanges = useCallback(async () => {
@@ -102,11 +111,9 @@ const useOfflineFormSyncLogic = () => {
 
       if (!lastSync) {
         // INITIAL SYNC: Fetch all visits
-        console.log('[Sync] Starting initial fetch (all visits)');
-        const result = await allVisitsQuery.refetch();
-
-        if (result.data) {
-          const data: NewShiftSchemaType[] = result.data?.data || result.data || [];
+        const response = await axiosGet('/visit');
+        if (response) {
+          const data: NewShiftSchemaType[] = response.data.data || response || [];
           if (data && data.length > 0) {
             await syncManager({ modifiedVisits: data, deletedVisits: [] }, true);
           }
@@ -115,18 +122,12 @@ const useOfflineFormSyncLogic = () => {
       } else {
         // INCREMENTAL SYNC: Fetch only updated items
         const epoch = Math.floor(new Date(lastSync).getTime() / 1000);
-        console.log('[Sync] Starting incremental fetch, epoch:', epoch);
 
-        // Update the epoch for the query
-        setLastSyncEpoch(epoch);
+        // Directly fetch using axios to avoid state dependency loop
+        const response = await axiosGet(`/visit/updated/${epoch}`);
 
-        // Wait for state to update, then refetch
-        await new Promise(resolve => setTimeout(resolve, 100));
-
-        const result = await updatedVisitsQuery.refetch();
-
-        if (result.data) {
-          const responseData = result.data?.data || result.data || {};
+        if (response) {
+          const responseData = response.data || response || {};
           const { modifiedVisits, deletedVisits } = responseData as {
             modifiedVisits?: NewShiftSchemaType[];
             deletedVisits?: { id: string }[]
@@ -148,12 +149,11 @@ const useOfflineFormSyncLogic = () => {
       console.error('[Sync] Download failed:', error);
       return false;
     }
-  }, [allVisitsQuery, updatedVisitsQuery]);
+  }, []);
 
   // FULL SYNC: Upload pending + Fetch ALL visits (button click)
   const triggerFullSync = useCallback(() => {
     if (!navigator.onLine || isSyncingRef.current) {
-      console.log('[FullSync] Skipped - offline or already syncing');
       return;
     }
 
@@ -164,28 +164,22 @@ const useOfflineFormSyncLogic = () => {
     const runFullSync = async () => {
       try {
         // ========== PHASE 1: UPLOAD FIRST ==========
-        console.log('[FullSync] Phase 1: Uploading pending items...');
         setSyncPhase('uploading');
 
         const uploadSuccess = await uploadPendingItems();
 
         if (!uploadSuccess) {
-          console.log('[FullSync] Upload failed, aborting sync');
           isSyncingRef.current = false;
           setIsSyncing(false);
           setSyncPhase('idle');
           return;
         }
 
-        console.log('[FullSync] Phase 1 complete');
 
         // ========== PHASE 2: FETCH ALL VISITS ==========
-        console.log('[FullSync] Phase 2: Fetching ALL visits...');
         setSyncPhase('downloading');
 
         await downloadAllVisits();
-
-        console.log('[FullSync] Phase 2 complete');
 
         // ========== SYNC COMPLETE ==========
         queryClient.invalidateQueries({ queryKey: ['local-visits'] });
@@ -218,28 +212,22 @@ const useOfflineFormSyncLogic = () => {
     const runSync = async () => {
       try {
         // ========== PHASE 1: UPLOAD FIRST ==========
-        console.log('[Sync] Phase 1: Uploading pending items...');
         setSyncPhase('uploading');
 
         const uploadSuccess = await uploadPendingItems();
 
         if (!uploadSuccess) {
-          console.log('[Sync] Upload failed, aborting sync');
           isSyncingRef.current = false;
           setIsSyncing(false);
           setSyncPhase('idle');
           return;
         }
 
-        console.log('[Sync] Phase 1 complete: All items uploaded');
 
         // ========== PHASE 2: DOWNLOAD AFTER UPLOAD ==========
-        console.log('[Sync] Phase 2: Downloading server changes...');
         setSyncPhase('downloading');
 
         await downloadServerChanges();
-
-        console.log('[Sync] Phase 2 complete: Server changes downloaded');
 
         // ========== SYNC COMPLETE ==========
         queryClient.invalidateQueries({ queryKey: ['local-visits'] });
@@ -257,33 +245,25 @@ const useOfflineFormSyncLogic = () => {
     void runSync();
   }, [uploadPendingItems, downloadServerChanges, queryClient]);
 
-  // Trigger sync ONCE when component mounts and is online
+  // Trigger sync when online (Initial or Reconnection)
   useEffect(() => {
-    if (isOnline && !hasInitialSyncRun.current && !isSyncingRef.current) {
-      hasInitialSyncRun.current = true;
-      console.log('[Sync] Initial sync triggered');
-      const timeout = setTimeout(() => {
-        triggerSync();
-      }, 1000);
-      return () => clearTimeout(timeout);
+    if (isOnline) {
+      if (!hasInitialSyncRun.current) {
+        // Initial sync
+        hasInitialSyncRun.current = true;
+        const timeout = setTimeout(() => {
+          if (!isSyncingRef.current) triggerSync();
+        }, 1000);
+        return () => clearTimeout(timeout);
+      } else {
+        // Coming back online
+        const timeout = setTimeout(() => {
+          if (!isSyncingRef.current) triggerSync();
+        }, 2000);
+        return () => clearTimeout(timeout);
+      }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isOnline]);
-
-  // Trigger sync when coming back online (after being offline)
-  useEffect(() => {
-    // Only trigger if we've already done initial sync and just came back online
-    if (isOnline && hasInitialSyncRun.current) {
-      console.log('[Sync] Coming back online, triggering sync...');
-      const timeout = setTimeout(() => {
-        if (!isSyncingRef.current) {
-          triggerSync();
-        }
-      }, 2000);
-      return () => clearTimeout(timeout);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isOnline]);
+  }, [isOnline, triggerSync]);
 
   return { synced, isOnline, isSyncing, triggerSync, triggerFullSync };
 };

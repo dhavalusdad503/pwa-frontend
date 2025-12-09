@@ -44,12 +44,14 @@ const VITE_IND_DB_TABLE = import.meta.env.VITE_IND_DB_TABLE || 'visits';
 //   return dbPromise;
 // }
 
-export async function saveFormOffline(data: NewShiftSchemaType) {
+export async function saveFormOffline(data: NewShiftSchemaType): Promise<boolean> {
   try {
     const db = secureDB;
     await db.add(VITE_IND_DB_TABLE, data);
+    return true;
   } catch (error) {
     console.error('Error saving form to IndexedDB:', error);
+    return false;
   }
 }
 
@@ -98,12 +100,14 @@ export async function updateId(id: number, newId: string) {
   }
 }
 
-export async function deleteItem(id: number) {
+export async function deleteItem(id: number): Promise<boolean> {
   try {
     // const db = await getDB();
     await secureDB.delete(VITE_IND_DB_TABLE, id);
+    return true;
   } catch (error) {
     console.error(`Error deleting form ${id}:`, error);
+    return false;
   }
 }
 
@@ -111,7 +115,7 @@ export async function getAllForms(): Promise<NewShiftSchemaType[]> {
   try {
     // const db = await getDB();
     const forms = await secureDB.getAll<NewShiftSchemaType>(VITE_IND_DB_TABLE);
-    return forms;
+    return forms; ``
   } catch (error) {
     console.error('Error retrieving all forms:', error);
     return [];

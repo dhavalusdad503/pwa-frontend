@@ -10,16 +10,15 @@ async function upsertItems(items: NewShiftSchemaType[]) {
     const localItem = {
       ...rest,
       patientName: patient?.name,
-      synced: 1 
+      synced: 1
     };
     try {
-      
+
       if (item.id !== undefined) {
         const existing = await secureDB.get<NewShiftSchemaType>(VITE_IND_DB_TABLE, item.id);
         if (existing) {
-         
+
           if (existing.synced === 0) {
-            console.log(`[SyncManager] Skipping item ${item.id} - has unsynced local changes`);
             continue;
           }
 
@@ -49,12 +48,10 @@ export const syncManager = async (userShifts: UpdatedShiftType, isInitialSync: b
     const { modifiedVisits, deletedVisits } = userShifts;
 
     if (isInitialSync) {
-     
+
       const allItems = await secureDB.getAll<NewShiftSchemaType>(VITE_IND_DB_TABLE);
       const unsyncedItems = allItems.filter(item => item.synced === 0);
-
       if (unsyncedItems.length > 0) {
-        console.log(`[SyncManager] Warning: ${unsyncedItems.length} unsynced items found during initial sync`);
         if (modifiedVisits && modifiedVisits.length > 0) {
           await upsertItems(modifiedVisits);
         }
