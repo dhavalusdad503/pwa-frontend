@@ -231,7 +231,7 @@ export const Select = forwardRef(
         borderRadius: '10px',
         '&:hover': { borderColor: '#E8ECF3' },
         outline: state.isFocused
-          ? '1px solid #43573C'
+          ? '1px solid #8fb2c7ff'
           : error
             ? '1px solid red'
             : '1px solid transparent',
@@ -294,15 +294,15 @@ export const Select = forwardRef(
       option: (base, state) => ({
         ...base,
         backgroundColor: state.isSelected
-          ? '#43573C'
+          ? '#8fb2c7ff'
           : state.isFocused
             ? 'rgba(67, 87, 60, 0.3)'
             : '',
         color: state.isSelected ? '#fff' : '#2E3139',
         '&:hover': {
           backgroundColor: state.isSelected
-            ? '#43573C'
-            : 'rgba(67, 87, 60, 0.3)',
+            ? '#8fb2c7ff'
+            : 'rgba(197, 220, 226, 0.3)',
           color: state.isSelected ? '#fff' : '#2E3139'
         },
         padding: '10px 14px',

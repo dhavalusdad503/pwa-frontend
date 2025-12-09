@@ -1,7 +1,7 @@
 import { axiosGet, axiosPost } from '@api/axios';
 import { shiftQueryKey } from '@api/common/shift.querykey';
 import { useMutation, useQuery } from '@api/index';
-
+import { getAllForms } from '@/db';
 
 export const useCreateShift = () => {
   return useMutation({
@@ -14,13 +14,52 @@ export const useCreateShift = () => {
   });
 };
 
-export const useGetUserShifts = () => {
-  return useQuery({
-    queryKey: ['get-user-shifts'],
-    queryFn: async () => {
-      const response = await axiosGet('/visit');
+export const useCreateBulkShift = () => {
+  return useMutation({
+    mutationKey: shiftQueryKey.createBulkShift(),
+    mutationFn: async (data: object) => {
+      const response = await axiosPost('/visit/bulk-create', { data });
       return response.data;
     },
     showToast: true
+  });
+};
+
+export const useLocalVisits = () => {
+  return useQuery({
+    queryKey: ['local-visits'],
+    queryFn: async () => {
+      const data = await getAllForms();
+      return { data }; 
+    },
+    staleTime: 0,
+    networkMode: 'always'
+  });
+};
+
+export const useFetchAllVisits = (enabled: boolean = false) => {
+  return useQuery({
+    queryKey: ['fetch-all-visits'],
+    queryFn: async () => {
+      const response = await axiosGet('/visit');
+      return response; 
+    },
+    enabled,
+    staleTime: 0,
+    retry: false,
+  });
+};
+
+export const useFetchUpdatedVisits = (lastSyncEpoch: number, enabled: boolean = false) => {
+  return useQuery({
+    queryKey: ['fetch-updated-visits', lastSyncEpoch],
+    queryFn: async () => {
+      const response = await axiosGet(`/visit/updated/${lastSyncEpoch}`);
+      return response; 
+    },
+    enabled: enabled && lastSyncEpoch > 0,
+    staleTime: 0,
+    cacheTime: 0,
+    retry: false,
   });
 };

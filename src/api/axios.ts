@@ -72,8 +72,8 @@ const processQueue = (
 
 // Request interceptor to add auth token
 axiosInstance.interceptors.request.use(
-  (request) => {
-    const accessToken = tokenStorage.getAccessToken();
+  async (request) => {
+    const accessToken = await tokenStorage.getAccessToken();
     if (accessToken) {
       request.headers['Authorization'] = `Bearer ${accessToken}`;
     }
@@ -113,7 +113,7 @@ axiosInstance.interceptors.response.use(
       //   return Promise.reject(error);
       // }
 
-      const refreshToken = tokenStorage.getRefreshToken();
+      const refreshToken = await tokenStorage.getRefreshToken();
 
       // No refresh token available, redirect immediately
       // if (!refreshToken) {
@@ -162,8 +162,8 @@ axiosInstance.interceptors.response.use(
           response.data;
 
         // Store new tokens - pass as object!
-        tokenStorage.setTokens({ accessToken });
-        tokenStorage.setRefreshToken(newRefreshToken);
+        await tokenStorage.setTokens({ accessToken });
+        await tokenStorage.setRefreshToken(newRefreshToken);
 
         dispatchSetUser({
           token: accessToken,

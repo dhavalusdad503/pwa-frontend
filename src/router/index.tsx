@@ -12,6 +12,7 @@ import {
 
 import AuthenticateRoute from './RouteGuard/AuthenticateRoute';
 import UnAuthenticateRoute from './RouteGuard/UnAuthenticateRoute';
+import { OfflineSyncProvider } from '@hooks/useOfflineFormSync';
 
 const applySuspense = (routes: RouteObject[]): RouteObject[] => {
   return routes.map((route) => ({
@@ -21,6 +22,11 @@ const applySuspense = (routes: RouteObject[]): RouteObject[] => {
     // )
   }));
 };
+
+// // Sync is now handled by OfflineSyncProvider
+// const AuthenticateRouteWrapper = ({ children }: { children: React.ReactNode }) => {
+//   return <>{children}</>;
+// };
 
 export const RoutesArray: RouteObject[] = applySuspense([
   ...Object.keys(ROUTES).map((key) => {
@@ -32,20 +38,25 @@ export const RoutesArray: RouteObject[] = applySuspense([
       errorElement: route.errorElement || <ErrorElement />
     };
 
+    // ... inside RoutesArray map function ...
     if (route.routeType === 'authenticate') {
       routeObj['element'] = (
         <AuthenticateRoute>
-          <Layout>
-            <Suspense fallback={<SectionLoader className="relative h-full" />}>
-              {ROUTES.DEFAULT.path !== route.path ? (
-                <ErrorBoundary path={ROUTES.DEFAULT.path}>
-                  {route.element}
-                </ErrorBoundary>
-              ) : (
-                route.element
-              )}
-            </Suspense>
-          </Layout>
+          <OfflineSyncProvider>
+            {/* <AuthenticateRouteWrapper> */}
+              <Layout>
+                <Suspense fallback={<SectionLoader className="relative h-full" />}>
+                  {ROUTES.DEFAULT.path !== route.path ? (
+                    <ErrorBoundary path={ROUTES.DEFAULT.path}>
+                      {route.element}
+                    </ErrorBoundary>
+                  ) : (
+                    route.element
+                  )}
+                </Suspense>
+              </Layout>
+            {/* </AuthenticateRouteWrapper> */}
+          </OfflineSyncProvider>
         </AuthenticateRoute>
       );
     } else if (route.routeType === 'un-authenticate') {

@@ -1,0 +1,367 @@
+import { NewShiftSchemaType } from '@/types';
+import { IDBPDatabase, openDB } from 'idb';
+
+// ===== DB CONFIG =====
+const VITE_IND_DB_NAME = import.meta.env.VITE_DB_NAME || 'nurse-appointment';
+const DB_VERSION = 2;
+// const DEVICE_KEY_ID = import.meta.env.VITE_DEVICE_KEY_ID || 'device-key';
+const VITE_IND_DB_TABLE = import.meta.env.VITE_IND_DB_TABLE || 'visits';
+type DB = IDBPDatabase;
+// Text helpers
+const encoder = new TextEncoder();
+const decoder = new TextDecoder();
+
+// Convert array buffers
+export function bufToB64(buf: ArrayBuffer | Uint8Array): string {
+  const array = buf instanceof Uint8Array ? buf : new Uint8Array(buf);
+  let binary = '';
+  for (let i = 0; i < array.byteLength; i++) {
+    binary += String.fromCharCode(array[i]);
+  }
+  return btoa(binary);
+}
+
+const b64ToBuf = (b64: string) =>
+  Uint8Array.from(atob(b64), (c) => c.charCodeAt(0)).buffer;
+
+// Generate random IV (12 bytes for AES-GCM)
+const randomIV = () => {
+  const iv = new Uint8Array(12);
+  crypto.getRandomValues(iv);
+  return iv;
+};
+class SecureDB {
+  private dbPromise: Promise<DB>;
+  private static readonly RSA_KEY_ID = 'rsa-keypair';
+  private static readonly AES_KEY_ID = 'wrapped-aes-key';
+  constructor() {
+    this.dbPromise = openDB(VITE_IND_DB_NAME, DB_VERSION, {
+      upgrade(db) {
+        // MAIN DATA STORE
+        if (!db.objectStoreNames.contains(VITE_IND_DB_TABLE)) {
+          const store = db.createObjectStore(VITE_IND_DB_TABLE, {
+            keyPath: 'id',
+            autoIncrement: true
+          });
+          store.createIndex('synced', 'synced');
+        }
+        // META STORE
+        if (!db.objectStoreNames.contains('meta')) {
+          db.createObjectStore('meta', { keyPath: 'key' });
+        }
+
+        if (!db.objectStoreNames.contains('keys')) {
+          db.createObjectStore('keys');
+        }
+      }
+    });
+  }
+
+  // ----------------------------------------------------
+  // 1. GET OR CREATE NON-EXTRACTABLE RSA KEYPAIR
+  // ----------------------------------------------------
+  private async getOrCreateRSAKeyPair(): Promise<{
+    privateKey: CryptoKey;
+    publicKey: CryptoKey;
+  }> {
+    const db = await this.dbPromise;
+    // Try to load previously-stored keys
+    const stored = await db.get('keys', SecureDB.RSA_KEY_ID);
+
+    if (stored) {
+      // stored.publicJwk is the exported public JWK (safe to store)
+      // stored.privateKey is the CryptoKey object (structured-cloned)
+      if (stored.privateKey && stored.publicKey) {
+        // privateKey was stored as a CryptoKey (structured-cloned) — reuse it
+        const privateKey = stored.privateKey as CryptoKey;
+
+        // import public key from JWK to get usable CryptoKey (extractable true)
+        const publicKey = await crypto.subtle.importKey(
+          'jwk',
+          stored.publicKey,
+          { name: 'RSA-OAEP', hash: 'SHA-256' },
+          true,
+          ['encrypt', 'wrapKey']
+        );
+
+        return { privateKey, publicKey };
+      }
+
+      // fallback if structure unexpected: remove entry and regenerate below
+    }
+
+    // Generate new RSA pair:
+    const keyPair = await crypto.subtle.generateKey(
+      {
+        name: 'RSA-OAEP',
+        modulusLength: 2048,
+        publicExponent: new Uint8Array([1, 0, 1]),
+        hash: 'SHA-256'
+      },
+      false, // make keys non-extractable by default
+      ['encrypt', 'decrypt', 'wrapKey', 'unwrapKey']
+    );
+
+    const privateKey = keyPair.privateKey;
+    const publicKey = keyPair.publicKey;
+
+    // export only public key (JWK) for storage / reuse
+    const publicJWK = await crypto.subtle.exportKey('jwk', publicKey);
+
+    // Persist into IndexedDB:
+    // - store publicJWK (so other contexts can re-import public key)
+    // - store privateKey CryptoKey itself (structured-clone) so we can use it later to unwrap
+    await db.put(
+      'keys',
+      { publicKey: publicJWK, privateKey },
+      SecureDB.RSA_KEY_ID
+    );
+
+    return { privateKey, publicKey };
+  }
+
+  // ----------------------------------------------------
+  // 2. GET OR CREATE AES KEY (WRAPPED STORAGE)
+  // ----------------------------------------------------
+  private async getOrCreateKey(): Promise<CryptoKey> {
+    const db = await this.dbPromise;
+
+    const { privateKey, publicKey } = await this.getOrCreateRSAKeyPair();
+    const wrappedKeyB64 = await db.get('keys', SecureDB.AES_KEY_ID);
+
+    if (wrappedKeyB64) {
+      const wrappedKey = b64ToBuf(wrappedKeyB64);
+
+      // Unwrap AES key using the stored private CryptoKey
+      return await crypto.subtle.unwrapKey(
+        'raw',
+        wrappedKey,
+        privateKey,
+        { name: 'RSA-OAEP' },
+        { name: 'AES-GCM', length: 256 },
+        true,
+        ['encrypt', 'decrypt']
+      );
+    }
+
+    // Create new AES key
+    const aesKey = await crypto.subtle.generateKey(
+      { name: 'AES-GCM', length: 256 },
+      true,
+      ['encrypt', 'decrypt']
+    );
+
+    // Wrap the AES key using RSA publicKey and store wrapped bytes
+    const wrapped = await crypto.subtle.wrapKey('raw', aesKey, publicKey, {
+      name: 'RSA-OAEP'
+    });
+
+    await db.put('keys', bufToB64(wrapped), SecureDB.AES_KEY_ID);
+    return aesKey;
+  }
+
+  // -----------------------------
+  // AES KEY MANAGEMENT
+  // -----------------------------
+
+  // private async getOrCreateKey(): Promise<CryptoKey> {
+  //   const db = await this.dbPromise;
+  //   const stored = await db.get('keys', DEVICE_KEY_ID);
+
+  //   if (stored) {
+  //     return crypto.subtle.importKey(
+  //       'raw',
+  //       b64ToBuf(stored),
+  //       { name: 'AES-GCM' },
+  //       true,
+  //       ['encrypt', 'decrypt']
+  //     );
+  //   }
+
+  //   const key = await crypto.subtle.generateKey(
+  //     { name: 'AES-GCM', length: 256 },
+  //     true, // extractable: false = HIGH SECURITY
+  //     ['encrypt', 'decrypt']
+  //   );
+
+  //   const rawKey = await crypto.subtle.exportKey('raw', key);
+  //   await db.put('keys', bufToB64(rawKey), DEVICE_KEY_ID);
+
+  //   return key;
+  // }
+
+  // -----------------------------
+  // ENCRYPT / DECRYPT HELPERS
+  // -----------------------------
+  async encrypt<T>(value: T) {
+    const key = await this.getOrCreateKey();
+    const iv = randomIV();
+    const encoded = encoder.encode(JSON.stringify(value));
+
+    const cipherBuf = await crypto.subtle.encrypt(
+      { name: 'AES-GCM', iv },
+      key,
+      encoded
+    );
+
+    const ivB64 = bufToB64(iv);
+    const cipherB64 = bufToB64(cipherBuf);
+    return `${ivB64}.${cipherB64}`;
+  }
+
+  async decrypt<T>(data: string) {
+    const key = await this.getOrCreateKey();
+    const [ivB64, cipherB64] = data.split('.');
+
+    const iv = new Uint8Array(b64ToBuf(ivB64));
+    const cipher = b64ToBuf(cipherB64);
+
+    const plainBuf = await crypto.subtle.decrypt(
+      { name: 'AES-GCM', iv },
+      key,
+      cipher
+    );
+    return JSON.parse(decoder.decode(plainBuf)) as T;
+  }
+
+  // -----------------------------
+  // PUBLIC API (USABLE ANYWHERE)
+  // -----------------------------
+
+  async set<T>(store: string, value: T, key?: IDBValidKey) {
+    const db = await this.dbPromise;
+    const encrypted = await this.encrypt(value);
+    return db.put(store, encrypted, key);
+  }
+
+  async get<T>(store: string, key: IDBValidKey) {
+    const db = await this.dbPromise;
+    const encrypted = await db.get(store, key);
+    if (!encrypted) return null;
+    return this.decrypt<T>(encrypted.data);
+  }
+
+  async getAll<T>(store: string) {
+    const db = await this.dbPromise;
+    const rows = await db.getAll(store);
+    return await Promise.all(rows.map(async (e) => {
+      const decrypted = await this.decrypt<T>(e.data);
+      return {
+        ...(typeof e.id === 'number' && { tempId: e.id }),
+        ...decrypted
+      };
+    })); // we are taking indexDB ids for rows which are not syned.
+  }
+
+  async delete(store: string, key: IDBValidKey) {
+    const db = await this.dbPromise;
+    return db.delete(store, key);
+  }
+
+  async deleteMany(store: string, ids: IDBValidKey[]) {
+    const db = await this.dbPromise;
+    const tx = db.transaction(store, "readwrite");
+    for (const id of ids) {
+      tx.store.delete(id);
+    }
+    await tx.done;
+  }
+
+  async add<T>(store: string, value: T) {
+    const db = await this.dbPromise;
+    const { id } = value;
+    const encrypted = await this.encrypt<NewShiftSchemaType>(value);
+    return db.add(store, { ...(id && { id }), data: encrypted });
+  }
+
+  // -----------------------------
+  // put() → insert or update (encrypted)
+  // -----------------------------
+  async put<T>(store: string, value: T, key?: IDBValidKey) {
+    const db = await this.dbPromise;
+    const { id } = value;
+    const encrypted = await this.encrypt(value);
+    return db.put(store, { id: key, data: encrypted });
+  }
+
+  async setMeta<T>(key: string, value: T) {
+    const db = await this.dbPromise;
+
+    const tx = db.transaction('meta', 'readwrite');
+    const store = tx.objectStore('meta');
+
+    store.put({ key, value });
+
+    return tx.done;
+  }
+
+  async getMeta<T>(key: string): Promise<T | null> {
+    const db = await this.dbPromise;
+
+    const tx = db.transaction('meta', 'readonly');
+    const store = tx.objectStore('meta');
+
+    const result = await store.get(key);
+    return result ? (result.value as T) : null;
+  }
+
+  async deleteMeta(key: string) {
+    const db = await this.dbPromise;
+
+    const tx = db.transaction('meta', 'readwrite');
+    const store = tx.objectStore('meta');
+
+    store.delete(key);
+
+    return tx.done;
+  }
+
+  async getAllMeta() {
+    const db = await this.dbPromise;
+
+    const tx = db.transaction('meta', 'readonly');
+    const store = tx.objectStore('meta');
+
+    const items = await store.getAll();
+    return items; // already in plain text
+  }
+  async clearStore(storeName: string): Promise<void> {
+    const db = await this.dbPromise;
+
+    const tx = db.transaction(storeName, 'readwrite');
+    const store = tx.objectStore(storeName);
+
+    await store.clear();
+    await tx.done;
+  }
+  async bulkAdd<T>(storeName: string, items: T[]): Promise<void> {
+    const db = await this.dbPromise;
+    // 1. Pre-encrypt everything BEFORE transaction
+    const encryptedItems = [];
+
+    for (const item of items) {
+      try {
+        const enc = await this.encrypt<T>(item); // OK here
+        encryptedItems.push(enc);
+      } catch (err) {
+        console.error('Encryption failed for item:', item, err);
+        throw err; // stop early
+      }
+    }
+
+    // 2. Start transaction
+    const tx = db.transaction(storeName, 'readwrite');
+    const store = tx.objectStore(storeName);
+
+    // 3. Bulk insert without ANY await
+    for (const [i, enc] of encryptedItems.entries()) {
+      store.add({ id: items[i].id, data: enc });
+    }
+
+    // 4. Final single await
+    await tx.done;
+  }
+}
+
+// Create SINGLE GLOBAL INSTANCE
+export const secureDB = new SecureDB();

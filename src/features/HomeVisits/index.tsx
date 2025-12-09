@@ -1,62 +1,84 @@
+import { useEffect } from 'react';
+
+import { useLocalVisits } from '@api/newShift';
 import { ROUTES } from '@constant/routesPath';
+import AppointmentCard from '@features/HomeVisits/AppointmentCard';
 import Button from '@lib/Common/Button';
 import { useNavigate } from 'react-router-dom';
-import { useEffect, useState } from 'react';
-import { useGetUserShifts } from '@api/newShift';
-import { NewShiftSchemaType } from '@/types';
-import { getAllForms } from '@/db';
-import AppointmentCard from '@features/HomeVisits/AppointmentCard';
-import { syncManager } from '@/db/syncManager';
 
+
+import { Pagination } from '@lib/Common/Pagination';
+import { useDataTable } from '@hooks/useDataTable';
+import { useOfflineSync } from '@hooks/useOfflineFormSync';
+
+import { NewShiftSchemaType } from '@/types';
 
 const HomeVisits = () => {
   const Navigate = useNavigate();
-  const { data: userShifts } = useGetUserShifts();
-  const [localShifts, setLocalShifts] = useState<NewShiftSchemaType[]>([]);
+  const { synced, isOnline, isSyncing, triggerSync } = useOfflineSync();
+  const { data: localVisitsData, refetch } = useLocalVisits();
+  // Custom useQuery unwraps { data } so we get the array directly
+  const localShifts = (localVisitsData as unknown as NewShiftSchemaType[]) || [];
+
+  const {
+    data,
+    totalCount,
+    currentPage,
+    setCurrentPage,
+    pageSize,
+    setPageSize,
+  } = useDataTable(localShifts);
+
+  useEffect(() => {
+    if (isOnline && synced) {
+      refetch();
+    } else if (!isOnline) {
+      refetch()
+    }
+  }, [synced, refetch]);
 
   const handleNewShift = () => {
-    // Logic to handle creating a new shift
     Navigate(ROUTES.NEW_SHIFT.path);
   };
 
-  // Load from local DB
-  async function loadLocal() {
-    const data = await getAllForms();
-    setLocalShifts(data);
+  const onPageChange = (page: number) => {
+    setCurrentPage(page);
+    if (isOnline) {
+      triggerSync();
+    }
+  };
 
-  }
-
-  useEffect(() => {
-    // 1. Load instantly from IndexedDB
-    loadLocal();
-
-    // 2. Sync with server (pass userShifts data)
-    syncManager(userShifts).then(loadLocal);
-  }, [userShifts]);
+  const onPageSizeChange = (pageSize: number) => {
+    setPageSize(pageSize);
+  };
 
   return (
     <>
       <div className="max-w-438px w-full m-auto">
         <div className="flex flex-col gap-2.5 w-full items-center ">
           <h4 className="text-2xl font-bold text-blackdark">Home Visits</h4>
-          {/* <p className="text-base font-normal text-blackdark/60">
-            Welcome Back! Please Enter Your Detail
-          </p> */}
         </div>
         <div className="flex flex-col gap-2.5 w-full items-center ">
           <Button
             type="submit"
             variant="filled"
-            // isLoading={isLoading}
             title="+ New Shift"
             className="w-md ! !font-bold !leading-5 "
-            // isDisabled={isLoading}
             onClick={handleNewShift}
           />
           <p className="text-base text-blackdark">Visit History</p>
-          {localShifts?.map((shift) => (
-            <AppointmentCard {...shift} />
+          {data?.map((shift, index) => (
+            <AppointmentCard key={shift.id || index} {...shift} />
           ))}
+        </div>
+        <div className="flex flex-col w-full items-center py-4  ">
+          <Pagination
+            currentPage={currentPage}
+            pageSize={pageSize}
+            onPageChange={onPageChange}
+            onPageSizeChange={onPageSizeChange}
+            totalCount={totalCount}
+          />
         </div>
       </div>
     </>

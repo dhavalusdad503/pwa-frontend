@@ -136,3 +136,15 @@ export const normalizeText = (text: string): string => {
   // Convert to lowercase → then startCase → remove extra spaces
   return _.startCase(_.toLower(text.trim()));
 };
+
+
+export function toEpochSeconds(isoString: string) {
+  try {
+    const time = new Date(isoString);
+    if (!time) return 0;
+    return Math.floor(time.getTime() / 1000);
+  } catch (error) {
+    console.log("Error in toEpochSeconds : ", error);
+    return 0;
+  }
+}
