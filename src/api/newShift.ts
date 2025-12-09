@@ -1,13 +1,14 @@
-import { axiosGet, axiosPost } from '@api/axios';
 import { shiftQueryKey } from '@api/common/shift.querykey';
 import { useMutation, useQuery } from '@api/index';
 import { getAllForms } from '@/db';
+import { visitRepository } from '@api/repositories';
+import { NewShiftSchemaType } from '@/types';
 
 export const useCreateShift = () => {
   return useMutation({
     mutationKey: shiftQueryKey.createShift(),
-    mutationFn: async (data: object) => {
-      const response = await axiosPost('/visit/create', { data });
+    mutationFn: async (data: Omit<NewShiftSchemaType, 'id' | 'synced'>) => {
+      const response = await visitRepository.create(data);
       return response.data;
     },
     showToast: true
@@ -17,8 +18,8 @@ export const useCreateShift = () => {
 export const useCreateBulkShift = () => {
   return useMutation({
     mutationKey: shiftQueryKey.createBulkShift(),
-    mutationFn: async (data: object) => {
-      const response = await axiosPost('/visit/bulk-create', { data });
+    mutationFn: async (data: Omit<NewShiftSchemaType, 'id' | 'synced'>[]) => {
+      const response = await visitRepository.bulkCreate(data);
       return response.data;
     },
     showToast: true
@@ -41,7 +42,7 @@ export const useFetchAllVisits = (enabled: boolean = false) => {
   return useQuery({
     queryKey: ['fetch-all-visits'],
     queryFn: async () => {
-      const response = await axiosGet('/visit');
+      const response = await visitRepository.getAll();
       return response; 
     },
     enabled,
@@ -54,7 +55,7 @@ export const useFetchUpdatedVisits = (lastSyncEpoch: number, enabled: boolean = 
   return useQuery({
     queryKey: ['fetch-updated-visits', lastSyncEpoch],
     queryFn: async () => {
-      const response = await axiosGet(`/visit/updated/${lastSyncEpoch}`);
+      const response = await visitRepository.getUpdated(lastSyncEpoch);
       return response; 
     },
     enabled: enabled && lastSyncEpoch > 0,

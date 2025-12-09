@@ -5,6 +5,7 @@ import { UseMutationOptions } from '@tanstack/react-query';
 import { AxiosError } from 'axios';
 
 import { useMutation, useQuery } from '@/api';
+import { authRepository } from '@api/repositories';
 
 export interface LoginResponse {
   success: boolean;
@@ -31,9 +32,7 @@ export const useLogin = (
     mutationFn: async (
       credentials: LoginCredentials
     ): Promise<LoginResponse> => {
-      const response = await axiosPost(`/auth/login`, {
-        data: credentials
-      });
+      const response = await authRepository.login(credentials);
 
       return response.data;
     },
@@ -46,7 +45,7 @@ export const useValidateLink = (params: { token: string | null }) => {
   return useQuery({
     queryKey: ['validate-link'],
     queryFn: async () => {
-      const response = await axiosGet(`/auth/validate-token`, { params });
+      const response = await authRepository.validateToken(params);
       return response.data;
     }
   });
@@ -59,9 +58,7 @@ export const useResetPassword = () => {
       token: string | null;
       new_password: string;
     }) => {
-      const response = await axiosPost('/auth/reset-password', {
-        data
-      });
+      const response = await authRepository.resetPassword(data);
       return response.data;
     },
     showToast: true
@@ -71,9 +68,7 @@ export const useForgetPassword = () => {
   return useMutation({
     mutationKey: authQueryKey.forgetPassword(),
     mutationFn: async (data: { email: string }) => {
-      const response = await axiosPost('/auth/forget-password', {
-        data
-      });
+      const response = await authRepository.forgotPassword(data);
       return response.data;
     },
     showToast: true
@@ -102,9 +97,7 @@ export const useRefreshToken = (
     mutationFn: async (data: {
       refreshToken?: string;
     }): Promise<LoginResponse> => {
-      const response = await axiosPost(`/auth/refresh`, {
-        data
-      });
+      const response = await authRepository.refreshToken(data);
 
       return response.data;
     },
