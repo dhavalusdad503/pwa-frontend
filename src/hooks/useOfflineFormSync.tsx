@@ -1,12 +1,12 @@
 import { useEffect, useState, createContext, useContext, ReactNode, useCallback, useRef } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useCreateBulkShift } from "@api/newShift";
-import { axiosGet } from "@api/axios";
 import { getUnsyncedForms, setMeta, putItems, deleteItem, saveFormOffline } from "@/db";
 import { secureDB } from "@/db/secureDataBase";
 import { syncManager } from "@/db/syncManager";
 import { NewShiftSchemaType } from "@/types/index";
 import moment from "moment";
+import { visitRepository } from "@api/repositories";
 
 interface OfflineSyncContextType {
   synced: boolean;
@@ -85,7 +85,7 @@ const useOfflineFormSyncLogic = () => {
   // Download ALL visits (for full sync button)
   const downloadAllVisits = useCallback(async () => {
     try {
-      const response = await axiosGet('/visit');
+      const response = await visitRepository.getAll();
 
       if (response) {
         const data: NewShiftSchemaType[] = response.data || response || [];
@@ -111,7 +111,7 @@ const useOfflineFormSyncLogic = () => {
 
       if (!lastSync) {
         // INITIAL SYNC: Fetch all visits
-        const response = await axiosGet('/visit');
+        const response = await visitRepository.getAll();
         if (response) {
           const data: NewShiftSchemaType[] = response.data.data || response || [];
           if (data && data.length > 0) {
@@ -123,8 +123,8 @@ const useOfflineFormSyncLogic = () => {
         // INCREMENTAL SYNC: Fetch only updated items
         const epoch = Math.floor(new Date(lastSync).getTime() / 1000);
 
-        // Directly fetch using axios to avoid state dependency loop
-        const response = await axiosGet(`/visit/updated/${epoch}`);
+        // Directly fetch using repository to avoid state dependency loop
+        const response = await visitRepository.getUpdated(epoch);
 
         if (response) {
           const responseData = response.data || response || {};
