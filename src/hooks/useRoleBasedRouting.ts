@@ -39,7 +39,14 @@ export const useRoleBasedRouting = () => {
         // ROUTES.CLIENT_DASHBOARD.path,
         // ROUTES.REQUEST_SLOT.path
       ],
-      [USER_ROLE.ADMIN]: [ROUTES.ADMIN_DASHBOARD.path],
+      [USER_ROLE.ADMIN]: [
+        ROUTES.ADMIN_DASHBOARD.path,
+        ROUTES.ADMIN_VISITS.path,
+        ROUTES.ADMIN_CAREGIVERS.path,
+        ROUTES.ADMIN_SUPERVISERS.path,
+        ROUTES.ADMIN_SYSTEM_SETTINGS.path,
+        ROUTES.ADMIN_AUDIT_LOGS.path
+      ],
       [USER_ROLE.SUPERVISOR]: [ROUTES.SUPERVISOR_DASHBOARD.path]
     };
 
@@ -51,7 +58,10 @@ export const useRoleBasedRouting = () => {
         // ROUTES.CLIENT_DASHBOARD.path,
         // ROUTES.REQUEST_SLOT.path
       ],
-      [USER_ROLE.ADMIN]: [ROUTES.ADMIN_DASHBOARD.path],
+      [USER_ROLE.ADMIN]: [
+        ROUTES.ADMIN_DASHBOARD.path,
+        ROUTES.ADMIN_VISITS.path
+      ],
       [USER_ROLE.SUPERVISOR]: [ROUTES.SUPERVISOR_DASHBOARD.path]
     };
 

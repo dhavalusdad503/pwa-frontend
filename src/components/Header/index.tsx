@@ -32,7 +32,11 @@ import { useSelector } from "react-redux";
 // ];
 import { useOfflineSync } from '@hooks/useOfflineFormSync';
 
-const Header = () => {
+interface HeaderProps {
+  toggleSidebar?: () => void;
+}
+
+const Header = ({ toggleSidebar }: HeaderProps) => {
   const { triggerFullSync, isSyncing, isOnline, synced } = useOfflineSync();
 
   // const routeData = Object.values(ROUTES).find((route) =>
@@ -48,25 +52,34 @@ const Header = () => {
   return (
     <>
       <nav className="border-gray-200 bg-gray-500">
-        <div className="flex justify-between  items-center p-4">
-          {/* <ul className="flex gap-3">
-            {menuItems.map((item) => (
-              <li key={item.path}>
-                <NavLink
-                  to={item.path}
-                  className={({ isActive }) =>
-                    clsx(
-                      'text-lg font-bold',
-                      isActive ? 'text-white' : 'text-gray-800'
-                    )
-                  }>
-                  {item.label}
-                </NavLink>
-              </li>
-            ))}
-          </ul> */}
-          <h1 className="text-white">{`${firstName} (${role?.name} )`}</h1>
+        <div className="flex justify-between items-center p-4">
+          {/* Hamburger Menu Button for Mobile */}
+          {toggleSidebar && (
+            <button
+              onClick={toggleSidebar}
+              className="xl:hidden p-2 text-white hover:bg-gray-600 rounded-lg transition-colors"
+              aria-label="Toggle sidebar"
+            >
+              <svg
+                className="w-6 h-6"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M4 6h16M4 12h16M4 18h16"
+                />
+              </svg>
+            </button>
+          )}
 
+          {/* User Info */}
+          <h1 className="text-white">{`${firstName} (${role?.name})`}</h1>
+
+          {/* Logout Button */}
           <Button
             variant="outline"
             title="Logout "
@@ -82,3 +95,4 @@ const Header = () => {
 };
 
 export default Header;
+

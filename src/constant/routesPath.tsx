@@ -2,6 +2,12 @@ import { lazy } from 'react';
 
 import NotFound from '@components/common/NotFound';
 import { type RouteObject } from 'react-router-dom';
+import Visits from '@features/admin/Visits';
+import VisitsPage from '@pages/Admin/Visits';
+import CaregiversPage from '@pages/Admin/Caregivers';
+import SupervisersPage from '@pages/Admin/Supervisers';
+import SystemSettingsPage from '@pages/Admin/SystemSettings';
+import AuditLogsPage from '@pages/Admin/AuditLogs';
 
 const Dashboard = lazy(() => import('@pages/Dashboard'));
 const Login = lazy(() => import('@pages/Login'));
@@ -26,6 +32,11 @@ export type RoutesType = {
   | 'NEW_SHIFT'
   | 'CAREGIVER_DASHBOARD'
   | 'ADMIN_DASHBOARD'
+  | 'ADMIN_VISITS'
+  | 'ADMIN_CAREGIVERS'
+  | 'ADMIN_SUPERVISERS'
+  | 'ADMIN_SYSTEM_SETTINGS'
+  | 'ADMIN_AUDIT_LOGS'
   | 'SUPERVISOR_DASHBOARD'
   | 'FORGET_PASSWORD'
   // | 'OTP_CONFIRMATION'
@@ -92,12 +103,6 @@ export const ROUTES: RoutesType = {
     headerName: 'Dashboard',
     element: <Dashboard />
   },
-  ADMIN_DASHBOARD: {
-    path: '/admin/dashboard',
-    routeType: 'authenticate',
-    headerName: 'Dashboard',
-    element: <Dashboard />
-  },
   HOME_VISIT: {
     path: '/caregiver/home-visit',
     routeType: 'authenticate',
@@ -114,5 +119,44 @@ export const ROUTES: RoutesType = {
     path: '*',
     routeType: 'un-authenticate',
     element: <NotFound />
-  }
+  },
+
+
+  //Admin Routes
+  ADMIN_DASHBOARD: {
+    path: '/admin/dashboard',
+    routeType: 'authenticate',
+    headerName: 'Dashboard',
+    element: <Dashboard />
+  },
+  ADMIN_VISITS: {
+    path: '/admin/visits',
+    routeType: 'authenticate',
+    headerName: 'Visits',
+    element: <VisitsPage />
+  },
+  ADMIN_CAREGIVERS: {
+    path: '/admin/caregivers',
+    routeType: 'authenticate',
+    headerName: 'Care Givers',
+    element: <CaregiversPage />
+  },
+  ADMIN_SUPERVISERS: {
+    path: '/admin/supervisors',
+    routeType: 'authenticate',
+    headerName: 'Supervisors',
+    element: <SupervisersPage />
+  },
+  ADMIN_SYSTEM_SETTINGS: {
+    path: '/admin/settings',
+    routeType: 'authenticate',
+    headerName: 'System Settings',
+    element: <SystemSettingsPage />
+  },
+  ADMIN_AUDIT_LOGS: {
+    path: '/admin/audit-logs',
+    routeType: 'authenticate',
+    headerName: 'Audit Logs',
+    element: <AuditLogsPage />
+  },
 } as const;
