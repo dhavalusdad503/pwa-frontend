@@ -11,7 +11,7 @@ export const useInfiniteVisitsQuery = (param?: object) => {
   return useInfiniteQuery<InfinitePageResponse<VisitCardResponse>>({
     queryKey: supervisorQueryKeyMap.visitsListsBySupervisor({ param }),
     queryFn: async ({ pageParam = 1 }) => {
-      const res = await axiosGet(`/visit/list`, {
+      const res = await axiosGet(`/visit`, {
         params: {
           ...param,
           page: pageParam,
