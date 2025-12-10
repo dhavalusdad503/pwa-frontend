@@ -137,14 +137,23 @@ export const normalizeText = (text: string): string => {
   return _.startCase(_.toLower(text.trim()));
 };
 
-
 export function toEpochSeconds(isoString: string) {
   try {
     const time = new Date(isoString);
     if (!time) return 0;
     return Math.floor(time.getTime() / 1000);
   } catch (error) {
-    console.log("Error in toEpochSeconds : ", error);
+    console.log('Error in toEpochSeconds : ', error);
     return 0;
   }
 }
+
+export const combineName = ({
+  names
+}: {
+  names: (string | undefined | null)[];
+}) => {
+  if (!names.length) return '-';
+
+  return names.filter((name) => name).join(' ') || '-';
+};

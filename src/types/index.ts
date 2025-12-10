@@ -18,3 +18,14 @@ export type UpdatedShiftType = {
   modifiedVisits: NewShiftSchemaType[];
   deletedVisits: { id: string }[];
 };
+
+export interface InfinitePageResponse<T> {
+  data: T[];
+  total: number;
+  hasMore: boolean;
+}
+
+export interface InfiniteQueryResponse<T> {
+  pages: InfinitePageResponse<T>[];
+  pageParams: number[];
+}

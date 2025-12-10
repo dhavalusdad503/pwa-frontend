@@ -81,7 +81,8 @@ export const DATE_FORMATS = {
   DEFAULT: 'YYYY-MM-DD HH:mm:ss',
   WITH_TZ: 'YYYY-MM-DD HH:mm:ss z',
   DATE_SHORT_TIME: 'DD/MM/yyyy HH:mm',
-  SHORT_MONTH_AND_YEAR: 'MMM YYYY'
+  SHORT_MONTH_AND_YEAR: 'MMM YYYY',
+  ISO_DATE: 'YYYY-MM-DD'
 };
 
 export const formatDateLabel = (
