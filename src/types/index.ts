@@ -29,3 +29,5 @@ export interface InfiniteQueryResponse<T> {
   pages: InfinitePageResponse<T>[];
   pageParams: number[];
 }
+
+

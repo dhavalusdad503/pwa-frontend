@@ -1,4 +1,4 @@
-import { Pagination } from "@components/common/Pagination";
+import { Pagination } from '@components/common/Pagination';
 import {
   ColumnDef,
   flexRender,
@@ -7,9 +7,9 @@ import {
   getPaginationRowModel,
   getSortedRowModel,
   SortingState,
-  useReactTable,
-} from "@tanstack/react-table";
-import clsx from "clsx";
+  useReactTable
+} from '@tanstack/react-table';
+import clsx from 'clsx';
 
 interface TableProps<TData> {
   id?: string;
@@ -40,7 +40,6 @@ interface TableProps<TData> {
   skeletonCount?: number;
 }
 
-
 const Table = <TData,>({
   id = 'root-table',
   data,
@@ -58,48 +57,58 @@ const Table = <TData,>({
   // rowIdAccessor,
   // isLoading,
   // skeletonCount,
-  isLoading,
-
+  isLoading
 }: TableProps<TData>) => {
-
-
   const table = useReactTable({
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
-  })
+    getPaginationRowModel: getPaginationRowModel()
+  });
 
   return (
     <div className={clsx('w-full')} id={id}>
-    <div>
-      <table>
-        <thead>
-          {table.getHeaderGroups().map((headerGroup) => (
-            <tr key={headerGroup.id} className="bg-gray-100 border border-gray-200">
-              {headerGroup.headers.map((header) => (
-                <th key={header.id} className="px-4 py-2 border border-gray-200">
-                  {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
-                </th>
-              ))}
-            </tr>
-          ))}
-        </thead>
-        <tbody>
-          {table.getRowModel().rows.map((row) => (
-            <tr key={row.id} className="bg-gray-50 my-2">
-              {row.getVisibleCells().map((cell) => (
-                <td key={cell.id} className="px-4 py-2 border border-gray-200">{flexRender(cell.column.columnDef.cell, cell.getContext())}</td>
-              ))}
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-    {!isLoading && pagination && totalCount > 0 && (
-        <div className='flex items-center gap-2 mt-4'>
+      <div>
+        <table>
+          <thead>
+            {table.getHeaderGroups().map((headerGroup) => (
+              <tr
+                key={headerGroup.id}
+                className="bg-gray-100 border border-gray-200">
+                {headerGroup.headers.map((header) => (
+                  <th
+                    key={header.id}
+                    className="px-4 py-2 border border-gray-200">
+                    {header.isPlaceholder
+                      ? null
+                      : flexRender(
+                          header.column.columnDef.header,
+                          header.getContext()
+                        )}
+                  </th>
+                ))}
+              </tr>
+            ))}
+          </thead>
+          <tbody>
+            {table.getRowModel().rows.map((row) => (
+              <tr key={row.id} className="bg-gray-50 my-2">
+                {row.getVisibleCells().map((cell) => (
+                  <td
+                    key={cell.id}
+                    className="px-4 py-2 border border-gray-200">
+                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                  </td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      {!isLoading && pagination && totalCount > 0 && (
+        <div className="flex items-center gap-2 mt-4">
           <Pagination
             table={table}
             totalCount={totalCount}

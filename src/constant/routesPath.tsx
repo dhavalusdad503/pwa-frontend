@@ -1,54 +1,58 @@
 import { lazy } from 'react';
 
 import NotFound from '@components/common/NotFound';
-import { type RouteObject } from 'react-router-dom';
-import Visits from '@features/admin/Visits';
-import VisitsPage from '@pages/Admin/Visits';
-import CaregiversPage from '@pages/Admin/Caregivers';
-import SupervisersPage from '@pages/Admin/Supervisers';
-import SystemSettingsPage from '@pages/Admin/SystemSettings';
 import AuditLogsPage from '@pages/Admin/AuditLogs';
+import SystemSettingsPage from '@pages/Admin/SystemSettings';
+import VisitsPage from '@pages/Admin/Visits';
+import { type RouteObject } from 'react-router-dom';
 
 const Dashboard = lazy(() => import('@pages/Dashboard'));
 const Login = lazy(() => import('@pages/Login'));
 const HomeVisits = lazy(() => import('@pages/HomeVisit'));
 const NewShift = lazy(() => import('@pages/NewShift'));
 const Root = lazy(() => import('@pages/Root'));
-const ForgetPassword = lazy(() => import('@pages/ForgetPassword/ForgetPasswordPage'))
+const ForgetPassword = lazy(
+  () => import('@pages/ForgetPassword/ForgetPasswordPage')
+);
 // const OtpConfirmation = lazy(() => import('@pages/ForgetPassword/OtpConfirmationPage'))
-const ResetPassword = lazy(() => import('@pages/ForgetPassword/ResetPasswordPage'))
+const ResetPassword = lazy(
+  () => import('@pages/ForgetPassword/ResetPasswordPage')
+);
+
+const SupervisorsPage = lazy(() => import('@pages/Admin/Supervisors'));
+
+const CaregiversPage = lazy(() => import('@pages/Admin/Caregivers'));
+
 // const Product = lazy(() => import('@/pages/Product'));
 // const Category = lazy(() => import('@/pages/Category'));
 // const User = lazy(() => import('@/pages/User'));
 // const AddUser = lazy(() => import('@/pages/User/AddUser'));
-// const EditUser = lazy(() => import('@/pages/User/EditUser'));
-// const ViewUser = lazy(() => import('@/pages/User/ViewUser'));
 // const Register = lazy(() => import('@/pages/Register'));
 export type RoutesType = {
   [key in
-  | 'DEFAULT'
-  | 'LOGIN'
-  | 'HOME_VISIT'
-  | 'NEW_SHIFT'
-  | 'CAREGIVER_DASHBOARD'
-  | 'ADMIN_DASHBOARD'
-  | 'ADMIN_VISITS'
-  | 'ADMIN_CAREGIVERS'
-  | 'ADMIN_SUPERVISERS'
-  | 'ADMIN_SYSTEM_SETTINGS'
-  | 'ADMIN_AUDIT_LOGS'
-  | 'SUPERVISOR_DASHBOARD'
-  | 'FORGET_PASSWORD'
-  // | 'OTP_CONFIRMATION'
-  | 'RESET_PASSWORD'
-  // | 'PRODUCT'
-  // | 'CATEGORY'
-  // | 'USER'
-  // | 'ADD_USER'
-  // | 'EDIT_USER'
-  // | 'VIEW_USER'
-  // | 'REGISTER'
-  | 'NOT_FOUND']: {
+    | 'DEFAULT'
+    | 'LOGIN'
+    | 'HOME_VISIT'
+    | 'NEW_SHIFT'
+    | 'CAREGIVER_DASHBOARD'
+    | 'ADMIN_DASHBOARD'
+    | 'ADMIN_VISITS'
+    | 'ADMIN_CAREGIVERS'
+    | 'ADMIN_SUPERVISORS'
+    | 'ADMIN_SYSTEM_SETTINGS'
+    | 'ADMIN_AUDIT_LOGS'
+    | 'SUPERVISOR_DASHBOARD'
+    | 'FORGET_PASSWORD'
+    // | 'OTP_CONFIRMATION'
+    | 'RESET_PASSWORD'
+    // | 'PRODUCT'
+    // | 'CATEGORY'
+    // | 'USER'
+    // | 'ADD_USER'
+    // | 'EDIT_USER'
+    // | 'VIEW_USER'
+    // | 'REGISTER'
+    | 'NOT_FOUND']: {
     path: string;
     headerName?: string;
     routeType: 'public' | 'authenticate' | 'un-authenticate';
@@ -115,12 +119,6 @@ export const ROUTES: RoutesType = {
     headerName: 'New Shift',
     element: <NewShift />
   },
-  NOT_FOUND: {
-    path: '*',
-    routeType: 'un-authenticate',
-    element: <NotFound />
-  },
-
 
   //Admin Routes
   ADMIN_DASHBOARD: {
@@ -141,11 +139,11 @@ export const ROUTES: RoutesType = {
     headerName: 'Care Givers',
     element: <CaregiversPage />
   },
-  ADMIN_SUPERVISERS: {
+  ADMIN_SUPERVISORS: {
     path: '/admin/supervisors',
     routeType: 'authenticate',
     headerName: 'Supervisors',
-    element: <SupervisersPage />
+    element: <SupervisorsPage />
   },
   ADMIN_SYSTEM_SETTINGS: {
     path: '/admin/settings',
@@ -159,4 +157,10 @@ export const ROUTES: RoutesType = {
     headerName: 'Audit Logs',
     element: <AuditLogsPage />
   },
+
+  NOT_FOUND: {
+    path: '*',
+    routeType: 'un-authenticate',
+    element: <NotFound />
+  }
 } as const;

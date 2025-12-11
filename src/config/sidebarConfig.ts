@@ -32,7 +32,7 @@ export const sidebarMenuItems: SidebarMenuItem[] = [
   {
     icon: 'list',
     label: 'Supervisers',
-    path: ROUTES.ADMIN_SUPERVISERS.path,
+    path: ROUTES.ADMIN_SUPERVISORS.path,
     roles: [USER_ROLE.ADMIN]
   },
   {
