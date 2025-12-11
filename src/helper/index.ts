@@ -157,3 +157,31 @@ export const combineName = ({
 
   return names.filter((name) => name).join(' ') || '-';
 };
+
+export const isDefined = (value: unknown) => {
+  return !_.isNil(value);
+};
+
+export type ColumnItem = string | { [key: string]: string | string[] };
+
+export const transformedColumns = (
+  column: ColumnItem[],
+  prefix = 'column'
+): Record<string, string> => {
+  return column.reduce<Record<string, string>>((acc, curr, index) => {
+    if (typeof curr === 'string') {
+      acc[`${prefix}[${index}]`] = curr;
+    } else {
+      Object.entries(curr).forEach(([key, value]) => {
+        if (Array.isArray(value)) {
+          value.forEach((item, subIndex) => {
+            acc[`${prefix}[${key}][${subIndex}]`] = item;
+          });
+        } else {
+          acc[`${prefix}[${key}]`] = value;
+        }
+      });
+    }
+    return acc;
+  }, {});
+};

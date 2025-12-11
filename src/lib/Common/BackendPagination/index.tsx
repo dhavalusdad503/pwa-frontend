@@ -1,16 +1,15 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 
 import Button from '../Button';
 import Icon from '../Icon';
 import InputField from '../Input';
 import Select from '../Select';
 
-interface PaginationProps {
-  currentPage: number;
-  pageSize: number;
+interface PaginationProps<TData> {
+  table: TData; // Using any for demo, but should be Table<TData> from @tanstack/react-table
   totalCount: number;
-  onPageChange: (pageIndex: number) => void;
-  onPageSizeChange: (pageSize: number) => void;
+  onPageChange?: (pageIndex: number) => void;
+  onPageSizeChange?: (pageSize: number) => void;
   className?: string;
 }
 
@@ -43,34 +42,38 @@ function getPaginationRange(
   return range;
 }
 
-export const Pagination = ({
-  currentPage,
-  pageSize,
+export const BackendPagination = <TData,>({
+  table,
   totalCount,
   onPageChange,
   onPageSizeChange,
   className = ''
-}: PaginationProps) => {
+}: PaginationProps<TData>) => {
   const [goToValue, setGoToValue] = useState('');
 
+  // Get pagination state from table
+  const pageIndex = table?.getState?.()?.pagination?.pageIndex || 1;
+  const pageSize = table?.getState?.()?.pagination?.pageSize || 10;
+
   const totalPages = Math.ceil(totalCount / pageSize);
+  const currentPage = pageIndex;
   const pageRange = getPaginationRange(currentPage, totalPages);
 
-  const pageSizeOptions = [5, 10, 20, 30, 40, 50];
+  const pageSizeOptions = [10, 20, 30, 40, 50];
 
   const handleGoToSubmit = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
       const value = Number(goToValue);
       if (!isNaN(value) && value >= 1 && value <= totalPages) {
-        onPageChange(value);
+        onPageChange?.(value);
         setGoToValue('');
       }
     }
   };
 
   const handlePageSizeChange = (newPageSize: number) => {
-    onPageSizeChange(newPageSize);
-    onPageChange(1); // Reset to first page
+    onPageSizeChange?.(newPageSize);
+    onPageChange?.(1); // Reset to first page
   };
 
   return (
@@ -86,7 +89,7 @@ export const Pagination = ({
         <Button
           icon={<Icon name="previousArrow" color="black" />}
           variant="none"
-          onClick={() => onPageChange(currentPage - 1)}
+          onClick={() => onPageChange?.(currentPage - 1)}
           isDisabled={currentPage === 1}
           className="flex items-center justify-center !rounded-r-none sm:min-w-8 sm:min-h-8 !py-0 !px-1 border border-gray-300 rounded-l-md bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white"
         />
@@ -105,7 +108,7 @@ export const Pagination = ({
                 title={page.toString()}
                 variant="none"
                 key={page}
-                onClick={() => onPageChange(page)}
+                onClick={() => onPageChange?.(page)}
                 className={`flex items-center !font-semibold sm:text-base text-xs !rounded-none !py-0 !px-1 justify-center sm:min-w-8 sm:min-h-8 border-t border-b border-r border-gray-300  transition-colors ${
                   currentPage === page
                     ? 'bg-primary text-white  border-primary'
@@ -120,7 +123,7 @@ export const Pagination = ({
         <Button
           icon={<Icon name="nextArrow" color="black" />}
           variant="none"
-          onClick={() => onPageChange(currentPage + 1)}
+          onClick={() => onPageChange?.(currentPage + 1)}
           isDisabled={currentPage >= totalPages}
           className="flex items-center sm:text-base text-xs justify-center !rounded-l-none sm:min-w-8 sm:min-h-8 !py-0 !px-1 border-l-0 border border-gray-300 rounded-r-md bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white"
         />

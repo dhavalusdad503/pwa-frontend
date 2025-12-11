@@ -44,7 +44,7 @@ export const getCaregiverList = async (params: {
   sortOrder?: string;
 }) => {
   try {
-    const res = await axiosGet('/user/caregiver', {
+    const res = await axiosGet('/user', {
       params: {
         ...params,
         limit: params.limit || 20

@@ -43,7 +43,7 @@ export const useRoleBasedRouting = () => {
         ROUTES.ADMIN_DASHBOARD.path,
         ROUTES.ADMIN_VISITS.path,
         ROUTES.ADMIN_CAREGIVERS.path,
-        ROUTES.ADMIN_SUPERVISERS.path,
+        ROUTES.ADMIN_SUPERVISORS.path,
         ROUTES.ADMIN_SYSTEM_SETTINGS.path,
         ROUTES.ADMIN_AUDIT_LOGS.path
       ],

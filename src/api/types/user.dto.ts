@@ -22,6 +22,16 @@ export interface User {
   token?: string;
 }
 
+export interface UserDTO {
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 //   roles: [
 //     {
 //       name: string;

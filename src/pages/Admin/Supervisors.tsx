@@ -1,7 +1,7 @@
 import UserManagement from '@features/admin/Users';
 
-const CaregiversPage = ({
-  isSupervisor = false,
+const SupervisorsPage = ({
+  isSupervisor = true,
   isDashboard = false
 }: {
   isSupervisor?: boolean;
@@ -12,4 +12,4 @@ const CaregiversPage = ({
   );
 };
 
-export default CaregiversPage;
+export default SupervisorsPage;
