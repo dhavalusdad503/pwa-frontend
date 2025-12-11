@@ -2,7 +2,7 @@ import { NewShiftFormSchemaType } from '@/schema/shiftSchema';
 
 import type { GroupBase } from 'react-select';
 
-export type OptionTypeGlobal = { label?: string; value: string };
+export type OptionTypeGlobal = { label: string; value: string };
 export type SelectGroup = GroupBase<OptionTypeGlobal>;
 type patientData = Record<string, string>;
 export type NewShiftSchemaType = Omit<NewShiftFormSchemaType, 'serviceType'> & {

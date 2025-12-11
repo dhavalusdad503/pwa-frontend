@@ -1,5 +1,6 @@
 import { BaseApiClient } from '@api/BaseApiClient';
 import { AxiosResponse } from 'axios';
+
 import type { NewShiftSchemaType } from '@/types';
 
 export class VisitRepository extends BaseApiClient {
@@ -9,11 +10,11 @@ export class VisitRepository extends BaseApiClient {
     super(); // Inherits all interceptors and HTTP methods
   }
 
-  async create(data: Omit<NewShiftSchemaType, 'id' | 'synced'>): Promise<AxiosResponse> {
+  async create(data: FormData): Promise<AxiosResponse> {
     return this.post(`${this.basePath}/create`, data);
   }
 
-  async bulkCreate(data: Omit<NewShiftSchemaType, 'id' | 'synced'>[]): Promise<AxiosResponse> {
+  async bulkCreate(data: FormData): Promise<AxiosResponse> {
     return this.post(`${this.basePath}/bulk-create`, data);
   }
 
@@ -29,7 +30,10 @@ export class VisitRepository extends BaseApiClient {
     return this.get(`${this.basePath}/${id}`);
   }
 
-  async update(id: string, data: Partial<NewShiftSchemaType>): Promise<AxiosResponse> {
+  async update(
+    id: string,
+    data: Partial<NewShiftSchemaType>
+  ): Promise<AxiosResponse> {
     return this.put(`${this.basePath}/${id}`, data);
   }
 
