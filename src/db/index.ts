@@ -1,6 +1,6 @@
 // db.ts
-import { NewShiftSchemaType } from '@/types/index';
 import { secureDB } from '@/db/secureDataBase';
+import { NewShiftSchemaType } from '@/types/index';
 
 const VITE_IND_DB_TABLE = import.meta.env.VITE_IND_DB_TABLE || 'visits';
 
@@ -44,7 +44,9 @@ const VITE_IND_DB_TABLE = import.meta.env.VITE_IND_DB_TABLE || 'visits';
 //   return dbPromise;
 // }
 
-export async function saveFormOffline(data: NewShiftSchemaType): Promise<boolean> {
+export async function saveFormOffline(
+  data: NewShiftSchemaType
+): Promise<boolean> {
   try {
     const db = secureDB;
     await db.add(VITE_IND_DB_TABLE, data);
@@ -115,7 +117,7 @@ export async function getAllForms(): Promise<NewShiftSchemaType[]> {
   try {
     // const db = await getDB();
     const forms = await secureDB.getAll<NewShiftSchemaType>(VITE_IND_DB_TABLE);
-    return forms; ``
+    return forms;
   } catch (error) {
     console.error('Error retrieving all forms:', error);
     return [];
@@ -189,7 +191,6 @@ export async function setMeta(key: string, value: string) {
 //   }
 // }
 export async function putItems(items: NewShiftSchemaType[]) {
-
   const ShiftData = items?.map((item) => {
     const { patient, ...rest } = item;
     return {

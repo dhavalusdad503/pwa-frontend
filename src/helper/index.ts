@@ -137,14 +137,229 @@ export const normalizeText = (text: string): string => {
   return _.startCase(_.toLower(text.trim()));
 };
 
-
 export function toEpochSeconds(isoString: string) {
   try {
     const time = new Date(isoString);
     if (!time) return 0;
     return Math.floor(time.getTime() / 1000);
   } catch (error) {
-    console.log("Error in toEpochSeconds : ", error);
+    console.log('Error in toEpochSeconds : ', error);
     return 0;
   }
 }
+
+export const combineName = ({
+  names
+}: {
+  names: (string | undefined | null)[];
+}) => {
+  if (!names.length) return '-';
+
+  return names.filter((name) => name).join(' ') || '-';
+};
+
+export interface SerializableFile {
+  data: number[]; // Uint8Array converted to JSON-friendly number[]
+  type: string; // mime type
+  name: string; // original file name
+}
+export type DBValue =
+  | string
+  | number
+  | boolean
+  | null
+  | Blob
+  | SerializableFile
+  | object;
+export async function formDataToDBObject<T extends Record<string, DBValue>>(
+  formData: FormData
+): Promise<T> {
+  const result: Record<string, DBValue> = {};
+
+  for (const [key, value] of formData.entries()) {
+    if (value instanceof File) {
+      const arrayBuffer = await value.arrayBuffer();
+      const dataArray = Array.from(new Uint8Array(arrayBuffer));
+
+      result[key] = {
+        data: dataArray,
+        type: value.type,
+        name: value.name
+      };
+    } else {
+      result[key] = String(value);
+    }
+  }
+
+  return result as T;
+}
+/**
+ * Convert DB object → FormData (Blob → File)
+ */
+/**
+ * Converts IndexedDB object → FormData
+ * Handles Blob → File restoration.
+ */
+
+export interface SerializableFile {
+  data: number[];
+  type: string;
+}
+
+export type DBRecord = Record<string, DBValue>;
+
+// export async function dbObjectToFormData(record: DBRecord): Promise<FormData> {
+//   const formData = new FormData();
+
+//   for (const key of Object.keys(record)) {
+//     const value = record[key];
+
+//     // Skip metadata keys
+//     if (key.endsWith('_name') || key === 'id') continue;
+
+//     // -------------------------------------
+//     // CASE 1: Value is an actual Blob
+//     // -------------------------------------
+//     const rawName = record[`${key}_name`];
+//     const fileName = typeof rawName === 'string' ? rawName : 'file.bin';
+//     if (value instanceof Blob) {
+//       // const fileName = (record as DBRecord)[`${key}_name`] || 'file.bin';
+
+//       const file = new File([await value.arrayBuffer()], 'file', {
+//         type: value.type
+//       });
+
+//       formData.append(key, file);
+//       continue;
+//     }
+
+//     // -------------------------------------
+//     // CASE 2: SerializableFile → { data, type }
+//     // -------------------------------------
+//     if (
+//       typeof value === 'object' &&
+//       value !== null &&
+//       'data' in value &&
+//       'type' in value
+//     ) {
+//       const uint8 = new Uint8Array(value.data);
+//       const blob = new Blob([uint8], { type: value.type });
+
+//       // const fileName = (record as DBRecord)[`${key}_name`] || 'file.bin';
+
+//       const file = new File(
+//         [blob],
+//         typeof value.name === 'string' ? value.name : 'file',
+//         { type: value.type }
+//       );
+
+//       formData.append(key, file);
+//       continue;
+//     }
+
+//     // -------------------------------------
+//     // CASE 3: Normal string
+//     // -------------------------------------
+//     if (
+//       typeof value === 'string' ||
+//       typeof value === 'number' ||
+//       typeof value === 'boolean'
+//     ) {
+//       formData.append(key, value);
+//       continue;
+//     }
+
+//     // Should never happen
+//     console.warn('Unhandled field:', key, value);
+//   }
+
+//   return formData;
+// }
+export async function dbObjectToFormData(record: DBRecord): Promise<FormData> {
+  const formData = new FormData();
+
+  for (const key of Object.keys(record)) {
+    const value = record[key];
+
+    // Skip metadata keys
+    if (key === 'id') continue;
+
+    // -------------------------------------
+    // CASE 1: Actual Blob
+    // -------------------------------------
+    if (value instanceof Blob) {
+      const file = new File(
+        [await value.arrayBuffer()],
+        'file', // browser will infer extension from mime
+        { type: value.type }
+      );
+
+      formData.append(key, file);
+      continue;
+    }
+
+    // -------------------------------------
+    // CASE 2: Stored File object
+    // shape: { data, type, name }
+    // -------------------------------------
+    if (
+      value &&
+      typeof value === 'object' &&
+      'data' in value &&
+      'type' in value
+    ) {
+      const uint8 = new Uint8Array(value.data);
+      const file = new File(
+        [uint8],
+        typeof value.name === 'string' ? value.name : 'file',
+        { type: value.type }
+      );
+
+      formData.append(key, file);
+      continue;
+    }
+
+    // -------------------------------------
+    // CASE 3: Primitives
+    // -------------------------------------
+    if (
+      typeof value === 'string' ||
+      typeof value === 'number' ||
+      typeof value === 'boolean'
+    ) {
+      formData.append(key, String(value));
+      continue;
+    }
+
+    console.warn('Unhandled field:', key, value);
+  }
+
+  return formData;
+}
+export const isDefined = (value: unknown) => {
+  return !_.isNil(value);
+};
+
+export type ColumnItem = string | { [key: string]: string | string[] };
+
+export const transformedColumns = (
+  column: ColumnItem[],
+  prefix = 'column'
+): Record<string, string> => {
+  return column.reduce<Record<string, string>>((acc, curr, index) => {
+    if (typeof curr === 'string') {
+      acc[`${prefix}[${index}]`] = curr;
+    } else {
+      Object.entries(curr).forEach(([key, value]) => {
+        if (Array.isArray(value)) {
+          value.forEach((item, subIndex) => {
+            acc[`${prefix}[${key}][${subIndex}]`] = item;
+          });
+        } else {
+          acc[`${prefix}[${key}]`] = value;
+        }
+      });
+    }
+    return acc;
+  }, {});
+};

@@ -4,9 +4,8 @@
   "editor.codeActionsOnSave": {
     "source.removeUnusedImports": "explicit"
   },
-  "cSpell.words": ["Iconclassname"],
-  "[typescriptreact]": {
-    "editor.defaultFormatter": "vscode.typescript-language-features"
-  },
-  "typescript.preferences.importModuleSpecifier": "non-relative"
+  "cSpell.words": ["Iconclassname"]
+  // "[typescriptreact]": {
+  //   "editor.defaultFormatter": "esbenp.prettier-vscode"
+  // }
 }

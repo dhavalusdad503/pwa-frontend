@@ -1,6 +1,10 @@
 /** @type {import('tailwindcss').Config} */
 export default {
-  content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}', './src/stories/**/*.{js,ts,jsx,tsx}'],
+  content: [
+    './index.html',
+    './src/**/*.{js,ts,jsx,tsx}',
+    './src/stories/**/*.{js,ts,jsx,tsx}'
+  ],
   theme: {
     extend: {
       colors: {
@@ -43,7 +47,7 @@ export default {
         bluedark: '#409FF7',
         orangelight: '#FFEEE4',
         greenlightlittle: '#16B364',
-        orange: '#FF7F30',
+        orange: '#FF7F30'
       },
       padding: {
         '120px': '120px',
@@ -59,7 +63,7 @@ export default {
         '134px': '134px',
         '7px': '7px',
         '18px': '18px',
-        '3px': '3px',
+        '3px': '3px'
       },
       margin: {
         '120px': '120px',
@@ -70,12 +74,12 @@ export default {
         '18px': '18px',
         '46px': '46px',
         '34px': '34px',
-        '22px': '22px',
+        '22px': '22px'
       },
       borderRadius: {
         '20px': '20px',
         '10px': '10px',
-        '3px': '3px',
+        '3px': '3px'
       },
       fontSize: {
         '64px': '64px',
@@ -85,7 +89,7 @@ export default {
         '10px': '10px',
         '28px': '28px',
         '15px': '15px',
-        '140px': '140px',
+        '140px': '140px'
       },
       lineHeight: {
         '18px': '18px',
@@ -93,13 +97,13 @@ export default {
         '29px': '29px',
         '22px': '22px',
         '44px': '44px',
-        '14px': '14px',
+        '14px': '14px'
       },
       fontFamily: {
-        Nunito: ['Nunito'],
+        Nunito: ['Nunito']
       },
       zindex: {
-        9999: '9999',
+        9999: '9999'
       },
       width: {
         '85%': '85%',
@@ -134,7 +138,7 @@ export default {
         '464px': '464px',
         '300px': '300px',
         '1000px': '1000px',
-        '500px': '500px',
+        '500px': '500px'
       },
       height: {
         '617px': '617px',
@@ -153,23 +157,23 @@ export default {
         '60px': '60px',
         '22px': '22px',
         '640px': '640px',
-        '108px': '108px',
+        '108px': '108px'
       },
       minHeight: {
         '50px': '50px',
         '190px': '190px',
         '18px': '18px',
-        '250px': '250px',
+        '250px': '250px'
       },
       maxHeight: {
         '180px': '180px',
         '400px': '400px',
         '246px': '246px',
         '500px': '500px',
-        '443px': '443px',
+        '443px': '443px'
       },
       minWidth: {
-        '18px': '18px',
+        '18px': '18px'
       },
       maxWidth: {
         '438px': '438px',
@@ -186,51 +190,51 @@ export default {
         '464px': '464px',
         '300px': '300px',
         '260px': '260px',
-        '125px': '125px',
+        '125px': '125px'
       },
       gap: {
         '30px': '30px',
-        '25px': '25px',
+        '25px': '25px'
       },
       borderWidth: {
-        3: '3px',
+        3: '3px'
       },
       opacity: {
         12: '0.12',
         14: '0.14',
         27: '0.27',
-        6: '0.06',
+        6: '0.06'
       },
       animation: {
         skeleton: 'skeleton 1500ms linear 2s infinite',
         notfound: 'notfound 2s alternate infinite linear',
         astronaut: 'astronautFly 12s linear infinite',
-        starfloat: 'starfloat 12s linear infinite',
+        starfloat: 'starfloat 12s linear infinite'
       },
       keyframes: {
         skeleton: {
           '0%': { left: '-20%' },
-          '100%': { left: '120%' },
+          '100%': { left: '120%' }
         },
         notfound: {
           '0%': {
-            transform: 'translateY(0.15em) scaleY(0.95)',
+            transform: 'translateY(0.15em) scaleY(0.95)'
           },
           '100%': {
-            transform: 'translateY(-0.15em)',
-          },
+            transform: 'translateY(-0.15em)'
+          }
         },
         astronautFly: {
           '0%': { left: '0px' },
           '25%': { bottom: '25%', transform: 'rotate(0deg)' },
           '50%': { bottom: '50%', transform: 'rotate(45deg)' },
           '75%': { bottom: '75%', transform: 'rotate(-60deg)' },
-          '100%': { left: '100%', bottom: '100%', transform: 'rotate(90deg)' },
+          '100%': { left: '100%', bottom: '100%', transform: 'rotate(90deg)' }
         },
         starfloat: {
           '0%': { transform: 'translateX(0)', opacity: '1' },
-          '100%': { transform: 'translatex(-120vw)', opacity: '0' },
-        },
+          '100%': { transform: 'translatex(-120vw)', opacity: '0' }
+        }
       },
       boxShadow: {
         content: '0px 10px 30px 0px #0000004D',
@@ -242,12 +246,12 @@ export default {
         calenderheader: '0px 2px 7px 0px #0000001A',
         calendermodal: '0px 0px 40px 5px #0000004D',
         progresstracker: '0px 0px 24px 0px #0000000F',
-        progresstooltip: '0px 10px 30px 0px #0000004D',
+        progresstooltip: '0px 10px 30px 0px #0000004D'
       },
       dropShadow: {
-        content: '0.05em 0.05em rgba(0,0,0,0.25)',
-      },
-    },
+        content: '0.05em 0.05em rgba(0,0,0,0.25)'
+      }
+    }
   },
-  plugins: [],
+  plugins: []
 };

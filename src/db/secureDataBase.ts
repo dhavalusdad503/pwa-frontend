@@ -1,5 +1,6 @@
-import { NewShiftSchemaType } from '@/types';
 import { IDBPDatabase, openDB } from 'idb';
+
+import { NewShiftSchemaType } from '@/types';
 
 // ===== DB CONFIG =====
 const VITE_IND_DB_NAME = import.meta.env.VITE_DB_NAME || 'nurse-appointment';

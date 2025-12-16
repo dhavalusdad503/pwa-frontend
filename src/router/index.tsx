@@ -3,6 +3,7 @@ import { Suspense } from 'react';
 import { ErrorBoundary, ErrorElement } from '@components/common';
 import Layout from '@components/Layout';
 import { ROUTES } from '@constant/routesPath';
+import { OfflineSyncProvider } from '@hooks/useOfflineFormSync';
 import SectionLoader from '@lib/Common/Loader/Spinner';
 import {
   type RouteObject,
@@ -12,7 +13,6 @@ import {
 
 import AuthenticateRoute from './RouteGuard/AuthenticateRoute';
 import UnAuthenticateRoute from './RouteGuard/UnAuthenticateRoute';
-import { OfflineSyncProvider } from '@hooks/useOfflineFormSync';
 
 const applySuspense = (routes: RouteObject[]): RouteObject[] => {
   return routes.map((route) => ({

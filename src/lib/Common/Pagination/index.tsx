@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
+
 import Button from '../Button';
 import Icon from '../Icon';
-import Select from '../Select';
 import InputField from '../Input';
+import Select from '../Select';
 
 interface PaginationProps {
   currentPage: number;
@@ -13,7 +14,10 @@ interface PaginationProps {
   className?: string;
 }
 
-function getPaginationRange(current: number, total: number): (number | 'dots')[] {
+function getPaginationRange(
+  current: number,
+  total: number
+): (number | 'dots')[] {
   const siblingCount = 2;
   const totalPageNumbers = siblingCount * 2 + 5;
 
@@ -45,7 +49,7 @@ export const Pagination = ({
   totalCount,
   onPageChange,
   onPageSizeChange,
-  className = '',
+  className = ''
 }: PaginationProps) => {
   const [goToValue, setGoToValue] = useState('');
 
@@ -72,39 +76,41 @@ export const Pagination = ({
   return (
     <div className={`flex flex-wrap items-center gap-4 text-sm ${className}`}>
       {/* Total count */}
-      <span className='text-gray-600 font-medium'>Total {totalCount} items</span>
+      <span className="text-gray-600 font-medium">
+        Total {totalCount} items
+      </span>
 
       {/* Pagination controls */}
-      <div className='flex items-center'>
+      <div className="flex items-center">
         {/* Previous button */}
         <Button
-          icon={<Icon name='previousArrow' color='black' />}
-          variant='none'
+          icon={<Icon name="previousArrow" color="black" />}
+          variant="none"
           onClick={() => onPageChange(currentPage - 1)}
           isDisabled={currentPage === 1}
-          className='flex items-center justify-center !rounded-r-none sm:min-w-8 sm:min-h-8 !py-0 !px-1 border border-gray-300 rounded-l-md bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white'
+          className="flex items-center justify-center !rounded-r-none sm:min-w-8 sm:min-h-8 !py-0 !px-1 border border-gray-300 rounded-l-md bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white"
         />
 
         {/* Page numbers */}
-        <div className='flex'>
+        <div className="flex">
           {pageRange.map((page, i) =>
             page === 'dots' ? (
               <div
                 key={`dots-${i}`}
-                className='flex items-center justify-center !text-[10px] sm:min-w-8 sm:min-h-8 border-t border-b border-r border-gray-300 text-primary '
-              >
+                className="flex items-center justify-center !text-[10px] sm:min-w-8 sm:min-h-8 border-t border-b border-r border-gray-300 text-primary ">
                 •••
               </div>
             ) : (
               <Button
                 title={page.toString()}
-                variant='none'
+                variant="none"
                 key={page}
                 onClick={() => onPageChange(page)}
-                className={`flex items-center !font-semibold sm:text-base text-xs !rounded-none !py-0 !px-1 justify-center sm:min-w-8 sm:min-h-8 border-t border-b border-r border-gray-300  transition-colors ${currentPage === page
+                className={`flex items-center !font-semibold sm:text-base text-xs !rounded-none !py-0 !px-1 justify-center sm:min-w-8 sm:min-h-8 border-t border-b border-r border-gray-300  transition-colors ${
+                  currentPage === page
                     ? 'bg-primary text-white  border-primary'
                     : 'bg-white text-gray-700 hover:bg-gray-50'
-                  }`}
+                }`}
               />
             )
           )}
@@ -112,22 +118,25 @@ export const Pagination = ({
 
         {/* Next button */}
         <Button
-          icon={<Icon name='nextArrow' color='black' />}
-          variant='none'
+          icon={<Icon name="nextArrow" color="black" />}
+          variant="none"
           onClick={() => onPageChange(currentPage + 1)}
           isDisabled={currentPage >= totalPages}
-          className='flex items-center sm:text-base text-xs justify-center !rounded-l-none sm:min-w-8 sm:min-h-8 !py-0 !px-1 border-l-0 border border-gray-300 rounded-r-md bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white'
+          className="flex items-center sm:text-base text-xs justify-center !rounded-l-none sm:min-w-8 sm:min-h-8 !py-0 !px-1 border-l-0 border border-gray-300 rounded-r-md bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white"
         />
       </div>
 
       {/* Page size selector */}
-      <div className='relative'>
+      <div className="relative">
         <Select
           isSearchable={false}
-          labelClassName='!text-base'
+          labelClassName="!text-base"
           value={{ value: pageSize, label: `${pageSize} / Page` }}
-          options={pageSizeOptions.map(d => ({ value: d, label: `${d} / Page` }))}
-          onChange={value => {
+          options={pageSizeOptions.map((d) => ({
+            value: d,
+            label: `${d} / Page`
+          }))}
+          onChange={(value) => {
             const selectedValue = value;
             handlePageSizeChange(selectedValue?.value);
           }}
@@ -136,34 +145,34 @@ export const Pagination = ({
               borderRadius: '6px',
               minHeight: '30px',
               '& > div': {
-                minHeight: '30px',
-              },
+                minHeight: '30px'
+              }
             }),
             singleValue: () => ({
-              fontSize: '14px',
+              fontSize: '14px'
             }),
             menu: () => ({
-              borderRadius: '6px',
+              borderRadius: '6px'
             }),
             option: () => ({
               fontSize: '14px',
-              padding: '8px 12px',
-            }),
+              padding: '8px 12px'
+            })
           }}
         />
       </div>
 
       {/* Go to page input */}
-      <div className='flex items-center gap-2'>
-        <span className='text-gray-600'>Go to</span>
+      <div className="flex items-center gap-2">
+        <span className="text-gray-600">Go to</span>
         <InputField
-          iconClassName='text-primarygray'
-          type='text'
+          iconClassName="text-primarygray"
+          type="text"
           value={goToValue}
-          onChange={e => setGoToValue(e.target.value)}
+          onChange={(e) => setGoToValue(e.target.value)}
           onKeyDown={handleGoToSubmit}
-          placeholder=''
-          inputClass='!w-[50px] !px-2 !py-5px !rounded-[5px] border border-gray-300 text-center'
+          placeholder=""
+          inputClass="!w-[50px] !px-2 !py-5px !rounded-[5px] border border-gray-300 text-center"
         />
       </div>
     </div>
