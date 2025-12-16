@@ -74,9 +74,7 @@ const useOfflineFormSyncLogic = () => {
 
       await Promise.all(
         unsynced.map(async (item, index) => {
-          console.log({ item });
           const fd = await dbObjectToFormData(item);
-          console.log('temp id', fd.get('tempId'));
           for (const [key, value] of fd.entries()) {
             if (value instanceof File) {
               finalFD.append(`${index}[${key}]`, value); // IMPORTANT
@@ -95,7 +93,6 @@ const useOfflineFormSyncLogic = () => {
           //delting old visit from indexDB
           await deleteItem(+item.tempId);
           const unsyncedItem = unsyncedMap.get(+item.tempId);
-          console.log({ item }, { unsyncedItem });
           if (!unsyncedItem) {
             throw new Error('Item not found in unsynced map');
           }

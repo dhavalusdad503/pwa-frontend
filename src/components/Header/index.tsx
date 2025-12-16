@@ -1,5 +1,6 @@
 // import { ROUTES } from '@/constant/routesPath';
 
+import { useOfflineSync } from '@hooks/useOfflineFormSync';
 import Button from "@lib/Common/Button";
 import Icon from "@lib/Common/Icon";
 import { dispatchClearUser } from "@redux/dispatch/user.dispatch";
@@ -30,7 +31,6 @@ import { useSelector } from "react-redux";
 //   //   },
 //   //   { label: 'User', path: ROUTES.USER.path }
 // ];
-import { useOfflineSync } from '@hooks/useOfflineFormSync';
 
 interface HeaderProps {
   toggleSidebar?: () => void;

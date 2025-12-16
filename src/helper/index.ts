@@ -1,5 +1,3 @@
-import { USER_ROLE } from '@api/types/user.dto';
-import { ROUTES } from '@constant/routesPath';
 import { AxiosError, isAxiosError } from 'axios';
 import _ from 'lodash';
 import { useNavigate } from 'react-router-dom';
@@ -210,6 +208,73 @@ export interface SerializableFile {
 
 export type DBRecord = Record<string, DBValue>;
 
+// export async function dbObjectToFormData(record: DBRecord): Promise<FormData> {
+//   const formData = new FormData();
+
+//   for (const key of Object.keys(record)) {
+//     const value = record[key];
+
+//     // Skip metadata keys
+//     if (key.endsWith('_name') || key === 'id') continue;
+
+//     // -------------------------------------
+//     // CASE 1: Value is an actual Blob
+//     // -------------------------------------
+//     const rawName = record[`${key}_name`];
+//     const fileName = typeof rawName === 'string' ? rawName : 'file.bin';
+//     if (value instanceof Blob) {
+//       // const fileName = (record as DBRecord)[`${key}_name`] || 'file.bin';
+
+//       const file = new File([await value.arrayBuffer()], 'file', {
+//         type: value.type
+//       });
+
+//       formData.append(key, file);
+//       continue;
+//     }
+
+//     // -------------------------------------
+//     // CASE 2: SerializableFile → { data, type }
+//     // -------------------------------------
+//     if (
+//       typeof value === 'object' &&
+//       value !== null &&
+//       'data' in value &&
+//       'type' in value
+//     ) {
+//       const uint8 = new Uint8Array(value.data);
+//       const blob = new Blob([uint8], { type: value.type });
+
+//       // const fileName = (record as DBRecord)[`${key}_name`] || 'file.bin';
+
+//       const file = new File(
+//         [blob],
+//         typeof value.name === 'string' ? value.name : 'file',
+//         { type: value.type }
+//       );
+
+//       formData.append(key, file);
+//       continue;
+//     }
+
+//     // -------------------------------------
+//     // CASE 3: Normal string
+//     // -------------------------------------
+//     if (
+//       typeof value === 'string' ||
+//       typeof value === 'number' ||
+//       typeof value === 'boolean'
+//     ) {
+//       formData.append(key, value);
+//       continue;
+//     }
+
+//     // Should never happen
+//     console.warn('Unhandled field:', key, value);
+//   }
+
+//   return formData;
+// }
 export async function dbObjectToFormData(record: DBRecord): Promise<FormData> {
   const formData = new FormData();
 
@@ -217,63 +282,60 @@ export async function dbObjectToFormData(record: DBRecord): Promise<FormData> {
     const value = record[key];
 
     // Skip metadata keys
-    if (key.endsWith('_name') || key === 'id') continue;
+    if (key === 'id') continue;
 
     // -------------------------------------
-    // CASE 1: Value is an actual Blob
+    // CASE 1: Actual Blob
     // -------------------------------------
-    const rawName = record[`${key}_name`];
-    const fileName = typeof rawName === 'string' ? rawName : 'file.bin';
     if (value instanceof Blob) {
-      // const fileName = (record as DBRecord)[`${key}_name`] || 'file.bin';
-
-      const file = new File([await value.arrayBuffer()], fileName, {
-        type: value.type
-      });
+      const file = new File(
+        [await value.arrayBuffer()],
+        'file', // browser will infer extension from mime
+        { type: value.type }
+      );
 
       formData.append(key, file);
       continue;
     }
 
     // -------------------------------------
-    // CASE 2: SerializableFile → { data, type }
+    // CASE 2: Stored File object
+    // shape: { data, type, name }
     // -------------------------------------
     if (
+      value &&
       typeof value === 'object' &&
-      value !== null &&
       'data' in value &&
       'type' in value
     ) {
       const uint8 = new Uint8Array(value.data);
-      const blob = new Blob([uint8], { type: value.type });
-
-      // const fileName = (record as DBRecord)[`${key}_name`] || 'file.bin';
-
-      const file = new File([blob], fileName, { type: value.type });
+      const file = new File(
+        [uint8],
+        typeof value.name === 'string' ? value.name : 'file',
+        { type: value.type }
+      );
 
       formData.append(key, file);
       continue;
     }
 
     // -------------------------------------
-    // CASE 3: Normal string
+    // CASE 3: Primitives
     // -------------------------------------
     if (
       typeof value === 'string' ||
       typeof value === 'number' ||
       typeof value === 'boolean'
     ) {
-      formData.append(key, value);
+      formData.append(key, String(value));
       continue;
     }
 
-    // Should never happen
     console.warn('Unhandled field:', key, value);
   }
 
   return formData;
 }
-
 export const isDefined = (value: unknown) => {
   return !_.isNil(value);
 };

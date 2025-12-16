@@ -2,8 +2,9 @@
  * Legacy axios exports for backward compatibility
  * New code should use BaseApiClient or repository pattern
  */
-import { apiClient, PERMISSION_ERROR, PERMISSION_QUERY_KEYS_NAME } from './BaseApiClient';
 import { AxiosRequestConfig } from 'axios';
+
+import { apiClient, PERMISSION_ERROR, PERMISSION_QUERY_KEYS_NAME } from './BaseApiClient';
 
 // Re-export constants
 export { PERMISSION_ERROR, PERMISSION_QUERY_KEYS_NAME };

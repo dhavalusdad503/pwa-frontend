@@ -1,6 +1,8 @@
 // hooks/useDataTable.js
 import { useState, useMemo } from 'react';
+
 import { useDebounce } from '@hooks/useDebounce';
+
 import { NewShiftSchemaType } from '@/types';
 
 export const useDataTable = (data: NewShiftSchemaType[], options = { defaultPageSize: 5 }) => {

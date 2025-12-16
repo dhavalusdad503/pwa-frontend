@@ -136,7 +136,7 @@ const Shift = () => {
         formData.append(field, String(value));
       }
     });
-    formData.append('orgName', 'organization1');
+    formData.append('orgName', 'Default Organization');
     if (data?.serviceType?.value) {
       formData.set('serviceType', data?.serviceType?.value);
     }

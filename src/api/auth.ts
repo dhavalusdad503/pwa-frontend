@@ -1,11 +1,10 @@
-import { axiosGet, axiosPost } from '@api/axios';
 import { authQueryKey } from '@api/common/auth.querykey';
+import { authRepository } from '@api/repositories';
 import { User } from '@api/types/user.dto';
 import { UseMutationOptions } from '@tanstack/react-query';
 import { AxiosError } from 'axios';
 
 import { useMutation, useQuery } from '@/api';
-import { authRepository } from '@api/repositories';
 
 export interface LoginResponse {
   success: boolean;

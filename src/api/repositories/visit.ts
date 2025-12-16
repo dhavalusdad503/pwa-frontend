@@ -11,7 +11,7 @@ export class VisitRepository extends BaseApiClient {
   }
 
   async create(data: FormData): Promise<AxiosResponse> {
-    return this.post(`${this.basePath}/create`, data);
+    return this.post(`${this.basePath}`, data);
   }
 
   async bulkCreate(data: FormData): Promise<AxiosResponse> {

@@ -1,6 +1,6 @@
 // db.ts
-import { NewShiftSchemaType } from '@/types/index';
 import { secureDB } from '@/db/secureDataBase';
+import { NewShiftSchemaType } from '@/types/index';
 
 const VITE_IND_DB_TABLE = import.meta.env.VITE_IND_DB_TABLE || 'visits';
 

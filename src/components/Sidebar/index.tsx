@@ -1,8 +1,9 @@
+import { useEffect } from "react";
+
 import { getMenuItemByRole } from "@config/sidebarConfig";
 import Icon from "@lib/Common/Icon";
 import { currentUser, UserState } from "@redux/ducks/user";
 import clsx from "clsx";
-import { useEffect } from "react";
 import { useSelector } from "react-redux";
 import { NavLink } from "react-router-dom";
 
