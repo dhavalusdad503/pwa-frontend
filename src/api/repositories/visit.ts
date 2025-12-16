@@ -19,7 +19,8 @@ export class VisitRepository extends BaseApiClient {
   }
 
   async getAll(): Promise<AxiosResponse> {
-    return this.get(this.basePath);
+    const response = await this.get(this.basePath);
+    return response.data;
   }
 
   async getUpdated(lastSyncEpoch: number): Promise<AxiosResponse> {

@@ -1,11 +1,12 @@
 // import { ROUTES } from '@/constant/routesPath';
 
+import { USER_ROLE } from '@api/types/user.dto';
 import { useOfflineSync } from '@hooks/useOfflineFormSync';
-import Button from "@lib/Common/Button";
-import Icon from "@lib/Common/Icon";
-import { dispatchClearUser } from "@redux/dispatch/user.dispatch";
-import { currentUser } from "@redux/ducks/user";
-import { useSelector } from "react-redux";
+import Button from '@lib/Common/Button';
+import Icon from '@lib/Common/Icon';
+import { dispatchClearUser } from '@redux/dispatch/user.dispatch';
+import { currentUser } from '@redux/ducks/user';
+import { useSelector } from 'react-redux';
 
 // interface MenuItems {
 //   label: string;
@@ -45,7 +46,7 @@ const Header = ({ toggleSidebar }: HeaderProps) => {
   const { firstName, role } = useSelector(currentUser);
   const handleSyncClick = () => {
     if (!isSyncing && isOnline) {
-      triggerFullSync();  // Full sync - fetches all visits
+      triggerFullSync(); // Full sync - fetches all visits
     }
   };
 
@@ -54,18 +55,16 @@ const Header = ({ toggleSidebar }: HeaderProps) => {
       <nav className="border-gray-200 bg-gray-500">
         <div className="flex justify-between items-center p-4">
           {/* Hamburger Menu Button for Mobile */}
-          {toggleSidebar && (
+          {toggleSidebar && role?.name !== USER_ROLE.CAREGIVER && (
             <button
               onClick={toggleSidebar}
               className="xl:hidden p-2 text-white hover:bg-gray-600 rounded-lg transition-colors"
-              aria-label="Toggle sidebar"
-            >
+              aria-label="Toggle sidebar">
               <svg
                 className="w-6 h-6"
                 fill="none"
                 stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
+                viewBox="0 0 24 24">
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -95,4 +94,3 @@ const Header = ({ toggleSidebar }: HeaderProps) => {
 };
 
 export default Header;
-
