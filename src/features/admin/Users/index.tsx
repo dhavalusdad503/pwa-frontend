@@ -32,7 +32,7 @@ const UserManagement = ({
         <h5 className="text-lg leading-6 font-bold text-blackdark">
           {isSupervisor ? 'Supervisors' : 'Caregivers'}
         </h5>
-        <InputField
+        {!isDashboard && <InputField
           type="Search"
           placeholder="Search"
           icon="search"
@@ -41,7 +41,12 @@ const UserManagement = ({
           onChange={handleSearchChange}
           value={searchQuery}
           parentClassName="w-full sm:w-360px ml-auto"
-        />
+        />}
+        {/* <Button
+          title={isSupervisor ? 'Add Supervisor' : 'Add Caregiver'}
+          variant="filled"
+          onClick={() => navigate(createUserPath)}
+        /> */}
       </div>
       <Table
         data={data}

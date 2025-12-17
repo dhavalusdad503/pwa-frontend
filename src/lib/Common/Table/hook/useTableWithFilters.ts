@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { UseQueryResult } from '@tanstack/react-query';
 
 import { useFilterManager } from '@lib/Common/Filter/hooks/useFilterManager';
 
@@ -14,9 +15,17 @@ export type BaseQueryParams<TFilters extends object = Record<string, unknown>> =
     columns?: string;
   } & Record<string, unknown>;
 
-type ApiCall<TFilters extends object, TData> = (
-  params: BaseQueryParams<TFilters>
-) => Promise<TData>;
+type ApiCall<Q, TData> = (
+  params: Q,
+  id?: string | number
+) => UseQueryResult<
+  {
+    data: TData;
+    total: number;
+    currentPage: string | number;
+  } & Record<string, any>,
+  Error
+>;
 
 const useTableWithFilters = <
   TData,

@@ -55,6 +55,7 @@ export type RoutesType = {
     | 'NOT_FOUND']: {
     path: string;
     headerName?: string;
+    enableOfflineSync?: boolean;
     routeType: 'public' | 'authenticate' | 'un-authenticate';
     element: RouteObject['element'];
     errorElement?: RouteObject['errorElement'];
@@ -99,6 +100,7 @@ export const ROUTES: RoutesType = {
     path: '/caregiver/dashboard',
     routeType: 'authenticate',
     headerName: 'Dashboard',
+    enableOfflineSync: true,
     element: <Dashboard />
   },
   SUPERVISOR_DASHBOARD: {
@@ -110,6 +112,7 @@ export const ROUTES: RoutesType = {
   HOME_VISIT: {
     path: '/caregiver/home-visit',
     routeType: 'authenticate',
+    enableOfflineSync: true,
     headerName: 'Home Visit',
     element: <HomeVisits />
   },

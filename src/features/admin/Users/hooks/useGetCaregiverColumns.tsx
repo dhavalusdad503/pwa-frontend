@@ -80,8 +80,8 @@ const useUserManagement = ({
 
   return {
     columns,
-    data: data?.data || [],
-    total: data?.total || 0,
+    data: data?.rows || [],
+    total: data?.count || 0,
     pageIndex,
     pageSize,
     setPageSize,

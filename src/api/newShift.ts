@@ -1,8 +1,11 @@
 import { shiftQueryKey } from '@api/common/shift.querykey';
 import { useMutation, useQuery } from '@api/index';
 import { visitRepository } from '@api/repositories';
+import { PaginatedData, ResponseData } from '@api/types';
+import { AllVisitsResponse } from '@api/types/visits.dto';
 
 import { getAllForms } from '@/db';
+import { visitsQueryKeyMap } from './common/visits.queryKey';
 // const key = import.meta.env.VITE_SECRET_KEY;
 
 export const useCreateShift = () => {
@@ -39,12 +42,12 @@ export const useLocalVisits = () => {
   });
 };
 
-export const useFetchAllVisits = (enabled: boolean = false) => {
+export const useFetchAllVisits = (enabled: boolean = false, params?: object) => {
   return useQuery({
-    queryKey: ['fetch-all-visits'],
+    queryKey: visitsQueryKeyMap.allVisits(params),
     queryFn: async () => {
-      const response = await visitRepository.getAll();
-      return response;
+      const response = await visitRepository.getAll(params);
+      return response as ResponseData<PaginatedData<AllVisitsResponse>>;
     },
     enabled,
     staleTime: 0,

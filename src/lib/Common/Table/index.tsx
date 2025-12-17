@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import {
   type ColumnDef,
@@ -48,7 +48,7 @@ interface TableProps<TData> {
   skeletonCount?: number;
 }
 
-export const Table = <TData,>({
+export const  Table = <TData,>({
   id = 'root-table',
   data,
   columns,

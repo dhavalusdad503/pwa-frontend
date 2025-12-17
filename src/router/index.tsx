@@ -40,23 +40,29 @@ export const RoutesArray: RouteObject[] = applySuspense([
 
     // ... inside RoutesArray map function ...
     if (route.routeType === 'authenticate') {
+      const Element = (
+        <Layout>
+          <Suspense fallback={<SectionLoader className="relative h-full" />}>
+            {ROUTES.DEFAULT.path !== route.path ? (
+              <ErrorBoundary path={ROUTES.DEFAULT.path}>
+                {route.element}
+              </ErrorBoundary>
+            ) : (
+              route.element
+            )}
+          </Suspense>
+        </Layout>
+      );
+
       routeObj['element'] = (
         <AuthenticateRoute>
-          <OfflineSyncProvider>
-            {/* <AuthenticateRouteWrapper> */}
-              <Layout>
-                <Suspense fallback={<SectionLoader className="relative h-full" />}>
-                  {ROUTES.DEFAULT.path !== route.path ? (
-                    <ErrorBoundary path={ROUTES.DEFAULT.path}>
-                      {route.element}
-                    </ErrorBoundary>
-                  ) : (
-                    route.element
-                  )}
-                </Suspense>
-              </Layout>
-            {/* </AuthenticateRouteWrapper> */}
-          </OfflineSyncProvider>
+          {/* <AuthenticateRouteWrapper> */}
+          {route.enableOfflineSync ? (
+            <OfflineSyncProvider>{Element}</OfflineSyncProvider>
+          ) : (
+            Element
+          )}
+          {/* </AuthenticateRouteWrapper> */}
         </AuthenticateRoute>
       );
     } else if (route.routeType === 'un-authenticate') {

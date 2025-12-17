@@ -1,13 +1,55 @@
-import { VisitData } from "@features/admin/Visits/types";
+import { useFetchAllVisits } from "@api/newShift";
+import { AllVisitsResponse } from "@api/types/visits.dto";
 import { formatDateTime } from "@helper/dateUtils";
+import { useTableManagement } from "@lib/Common/Table";
 import { ColumnDef } from "@tanstack/react-table";
+import { is } from "date-fns/locale";
+import { useEffect } from "react";
 
 
-const getVisitsColumns = () => {
+const useVisitsManager = (
+  isDashboard = false
+) => {
 
-  const columns: ColumnDef<VisitData>[] = [
+  const columnsToFetch = [
+    "caregiver",
+    "patient",
+    "startedAt",
+    "endedAt",
+    "submittedAt",
+    "address"
+  ]
+
+  const {
+    apiData,
+    currentPage: pageIndex,
+    pageSize,
+    setCurrentPage: setPageIndex,
+    setPageSize,
+    setSearchQuery,
+    onSortingChange,
+    sorting,
+    setSorting,
+    searchQuery
+  } = useTableManagement({
+    apiCall: (params: object) => useFetchAllVisits(true, {...params, columns:columnsToFetch}),
+    initialQueryParams: {
+      page: 1,
+      limit: isDashboard ? 5 : 10,
+    }
+  });
+
+  const { data, isLoading, dataUpdatedAt } = apiData ?? {};
+
+  const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const query = event.target.value;
+    setSearchQuery(query);
+    setPageIndex(1);
+  };
+
+  const columns: ColumnDef<AllVisitsResponse>[] = [
     {
-      accessorKey: 'patientName',
+      accessorKey: 'patient.name',
       header: 'Patient',
       meta: {
         cellClassName: 'w-36',
@@ -16,7 +58,7 @@ const getVisitsColumns = () => {
         <span
           className='hover:text-blue-500  block w-full'
         >
-          {row.getValue('patientName')}
+          {row.original.patient.name}
         </span>
       ),
     },
@@ -30,40 +72,12 @@ const getVisitsColumns = () => {
         <span
           className='hover:text-blue-500  block w-full'
         >
-          {row.getValue('careGiverName')}
+          {`${row.original.caregiver?.firstName || ''} ${row.original.caregiver?.lastName || ''}`}
         </span>
       ),
     },
     {
-      accessorKey: 'supervisorName',
-      header: 'Supervisor',
-      meta: {
-        cellClassName: 'w-36',
-      },
-      cell: ({ row }) => (
-        <span
-          className='hover:text-blue-500  block w-full'
-        >
-          {row.getValue('supervisorName')}
-        </span>
-      ),
-    },
-    {
-      accessorKey: 'organizationName',
-      header: 'Organization',
-      meta: {
-        cellClassName: 'w-36',
-      },
-      cell: ({ row }) => (
-        <span
-          className='hover:text-blue-500  block w-full'
-        >
-          {row.getValue('organizationName')}
-        </span>
-      ),
-    },
-    {
-      accessorKey: 'startTime',
+      accessorKey: 'startedAt',
       header: 'Start Time',
       meta: {
         cellClassName: 'w-36',
@@ -72,12 +86,12 @@ const getVisitsColumns = () => {
         <span
           className='hover:text-blue-500  block w-full'
         >
-          {formatDateTime(row.getValue('startTime'))}
+          {formatDateTime(row.getValue('startedAt'))}
         </span>
       ),
     },
     {
-      accessorKey: 'endTime',
+      accessorKey: 'endedAt',
       header: 'End Time',
       meta: {
         cellClassName: 'w-36',
@@ -86,7 +100,7 @@ const getVisitsColumns = () => {
         <span
           className='hover:text-blue-500  block w-full'
         >
-          {formatDateTime(row.getValue('endTime'))}
+          {formatDateTime(row.getValue('endedAt'))}
         </span>
       ),
     },
@@ -105,7 +119,7 @@ const getVisitsColumns = () => {
       ),
     },
     {
-      accessorKey: 'Address',
+      accessorKey: 'address',
       header: 'Address',
       meta: {
         cellClassName: 'w-36',
@@ -114,15 +128,28 @@ const getVisitsColumns = () => {
         <span
           className='hover:text-blue-500  block w-full'
         >
-          {row.getValue('Address')}
+          {row.getValue('address')}
         </span>
       ),
     },
   ];
 
   return {
-    columns
+    columns,
+    data: data?.rows || [],
+    total: data?.total || 0,
+    pageIndex,
+    pageSize,
+    setPageSize,
+    handleSearchChange,
+    sorting,
+    setSorting,
+    onSortingChange,
+    isLoading,
+    dataUpdatedAt,
+    searchQuery,
+    setPageIndex
   }
 };
 
-export default getVisitsColumns;
+export default useVisitsManager;

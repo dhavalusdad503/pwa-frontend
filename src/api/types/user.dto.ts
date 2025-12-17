@@ -12,6 +12,18 @@ export interface RoleType {
   slug: string;
 }
 
+export interface IUser {
+    id: string;
+    firstName: string;
+    lastName: string;
+    email: string;
+    role: RoleType;
+    authProvider: string;
+    token?: string;
+    createdAt: string;
+    updatedAt: string;
+}
+
 export interface User {
   id: string;
   firstName: string;

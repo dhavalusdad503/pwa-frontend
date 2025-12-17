@@ -31,23 +31,17 @@ import { useSelector } from "react-redux";
 //   //   },
 //   //   { label: 'User', path: ROUTES.USER.path }
 // ];
-
 interface HeaderProps {
   toggleSidebar?: () => void;
 }
 
 const Header = ({ toggleSidebar }: HeaderProps) => {
-  const { triggerFullSync, isSyncing, isOnline, synced } = useOfflineSync();
 
   // const routeData = Object.values(ROUTES).find((route) =>
   //   matchPath(route.path, location.pathname)
   // );
   const { firstName, role } = useSelector(currentUser);
-  const handleSyncClick = () => {
-    if (!isSyncing && isOnline) {
-      triggerFullSync();  // Full sync - fetches all visits
-    }
-  };
+ 
 
   return (
     <>
