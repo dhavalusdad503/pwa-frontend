@@ -45,7 +45,8 @@ export const useRoleBasedRouting = () => {
         ROUTES.ADMIN_CAREGIVERS.path,
         ROUTES.ADMIN_SUPERVISORS.path,
         ROUTES.ADMIN_SYSTEM_SETTINGS.path,
-        ROUTES.ADMIN_AUDIT_LOGS.path
+        ROUTES.ADMIN_AUDIT_LOGS.path,
+        ROUTES.ADMIN_CREATE_USER.path
       ],
       [USER_ROLE.SUPERVISOR]: [ROUTES.SUPERVISOR_DASHBOARD.path]
     };

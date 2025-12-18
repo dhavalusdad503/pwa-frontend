@@ -2,6 +2,9 @@ import InputField from '@lib/Common/Input';
 import Table from '@lib/Common/Table';
 
 import useUserManagement from './hooks/useGetCaregiverColumns';
+import { useLocation, useNavigate } from 'react-router-dom';
+import Button from '@lib/Common/Button';
+import { ROUTES } from '@constant/routesPath';
 
 const UserManagement = ({
   isSupervisor = false,
@@ -26,6 +29,15 @@ const UserManagement = ({
     setPageIndex
   } = useUserManagement({ isSupervisor, isDashboard });
 
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const goToTarget = () => {
+    navigate(ROUTES.ADMIN_CREATE_USER.path, {
+      state: { from: location.pathname },
+    });
+  };
+
   return (
     <div className="bg-white rounded-20px border border-solid border-surface p-5">
       <div className="flex items-center flex-wrap gap-5 mb-5">
@@ -42,11 +54,13 @@ const UserManagement = ({
           value={searchQuery}
           parentClassName="w-full sm:w-360px ml-auto"
         />}
-        {/* <Button
-          title={isSupervisor ? 'Add Supervisor' : 'Add Caregiver'}
+
+        {!isDashboard && <Button
+          title='Create New'
           variant="filled"
-          onClick={() => navigate(createUserPath)}
-        /> */}
+          onClick={goToTarget}
+        />}
+
       </div>
       <Table
         data={data}

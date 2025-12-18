@@ -30,4 +30,12 @@ export interface InfiniteQueryResponse<T> {
   pageParams: number[];
 }
 
+export type CreateUserSchemaType = {
+  email: string;
+  firstName: string;
+  lastName: string;
+  phone?: string | undefined;
+  password: string;
+};
+
 

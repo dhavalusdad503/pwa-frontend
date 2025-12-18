@@ -5,6 +5,7 @@ import AuditLogsPage from '@pages/Admin/AuditLogs';
 import SystemSettingsPage from '@pages/Admin/SystemSettings';
 import VisitsPage from '@pages/Admin/Visits';
 import { type RouteObject } from 'react-router-dom';
+import CreateUserPage from '@pages/Admin/CreateUser';
 
 const Dashboard = lazy(() => import('@pages/Dashboard'));
 const Login = lazy(() => import('@pages/Login'));
@@ -39,6 +40,7 @@ export type RoutesType = {
     | 'ADMIN_VISITS'
     | 'ADMIN_CAREGIVERS'
     | 'ADMIN_SUPERVISORS'
+    | 'ADMIN_CREATE_USER'
     | 'ADMIN_SYSTEM_SETTINGS'
     | 'ADMIN_AUDIT_LOGS'
     | 'SUPERVISOR_DASHBOARD'
@@ -134,7 +136,7 @@ export const ROUTES: RoutesType = {
     path: '/admin/visits',
     routeType: 'authenticate',
     headerName: 'Visits',
-    element: <VisitsPage />
+    element: <VisitsPage isDashboard/>
   },
   ADMIN_CAREGIVERS: {
     path: '/admin/caregivers',
@@ -147,6 +149,12 @@ export const ROUTES: RoutesType = {
     routeType: 'authenticate',
     headerName: 'Supervisors',
     element: <SupervisorsPage />
+  },
+  ADMIN_CREATE_USER: {
+    path: '/admin/users/create',
+    routeType: 'authenticate',
+    headerName: 'Create User',
+    element: <CreateUserPage />
   },
   ADMIN_SYSTEM_SETTINGS: {
     path: '/admin/settings',

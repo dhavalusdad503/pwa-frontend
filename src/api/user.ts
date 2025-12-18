@@ -3,7 +3,9 @@ import { transformedColumns } from '@helper/index';
 import { axiosGet } from './axios';
 import { userQueryKeyMap } from './common/user.queryKey';
 
-import { useQuery } from '.';
+import { useMutation, useQuery } from '.';
+import { userRepository } from './repositories/user';
+import { CreateUserSchemaType } from '@/types';
 
 export const useGetUserList = (params: object) => {
   const columns = [
@@ -29,3 +31,12 @@ export const useGetUserList = (params: object) => {
     experimental_prefetchInRender: true
   });
 };
+
+export const useCreateUser = () => {
+  return useMutation({
+    mutationKey: userQueryKeyMap.createUser(),
+    mutationFn: (data: CreateUserSchemaType)=> {
+      return userRepository.createUser(data);
+    }
+  }) 
+}
