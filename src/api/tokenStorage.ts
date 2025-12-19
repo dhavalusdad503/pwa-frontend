@@ -8,19 +8,25 @@ const TOKEN_KEYS = {
   REFRESH_TOKEN: 'refreshToken'
 } as const;
 
-type StorageType = 'localStorage' | 'sessionStorage';
+export type StorageType = 'localStorage' | 'sessionStorage';
 
 export const tokenStorage = {
   getAccessToken: async (
     storageType: StorageType = 'localStorage'
   ): Promise<string | null> => {
-    const storage =
+    let storage =
       storageType === 'sessionStorage' ? sessionStorage : localStorage;
-    const encryptedToken = storage.getItem(TOKEN_KEYS.ACCESS_TOKEN);
+
+    let encryptedToken = storage.getItem(TOKEN_KEYS.ACCESS_TOKEN);
+    if (!encryptedToken) {
+      storage = sessionStorage;
+      encryptedToken = storage.getItem(TOKEN_KEYS.ACCESS_TOKEN);
+    }
     if (encryptedToken) {
       const decryptedToken = await secureDB.decrypt(encryptedToken);
       return decryptedToken as string;
     }
+  
     return null;
   },
 
@@ -37,16 +43,25 @@ export const tokenStorage = {
     return null;
   },
 
-  setTokens: async (tokens: AuthTokens): Promise<void> => {
+  setTokens: async (tokens: AuthTokens, storageType?: StorageType): Promise<void> => {
     const encryptedToken = await secureDB.encrypt(tokens.accessToken);
-    localStorage.setItem(TOKEN_KEYS.ACCESS_TOKEN, encryptedToken);
-    sessionStorage.setItem(TOKEN_KEYS.ACCESS_TOKEN, encryptedToken);
+
+    if (storageType === 'localStorage') localStorage.setItem(TOKEN_KEYS.ACCESS_TOKEN, encryptedToken);
+    else if (storageType === 'sessionStorage') sessionStorage.setItem(TOKEN_KEYS.ACCESS_TOKEN, encryptedToken);
+    else if (!storageType) {
+      localStorage.setItem(TOKEN_KEYS.ACCESS_TOKEN, encryptedToken);
+      sessionStorage.setItem(TOKEN_KEYS.ACCESS_TOKEN, encryptedToken);
+    }
   },
 
-  setRefreshToken: async (refreshToken: string): Promise<void> => {
+  setRefreshToken: async (refreshToken: string, storageType?: StorageType): Promise<void> => {
     const encryptedToken = await secureDB.encrypt(refreshToken);
-    localStorage.setItem(TOKEN_KEYS.REFRESH_TOKEN, encryptedToken);
-    sessionStorage.setItem(TOKEN_KEYS.REFRESH_TOKEN, encryptedToken);
+    if (storageType === 'localStorage') localStorage.setItem(TOKEN_KEYS.REFRESH_TOKEN, encryptedToken);
+    else if (storageType === 'sessionStorage') sessionStorage.setItem(TOKEN_KEYS.REFRESH_TOKEN, encryptedToken);
+    else if (!storageType) {
+      localStorage.setItem(TOKEN_KEYS.REFRESH_TOKEN, encryptedToken);
+      sessionStorage.setItem(TOKEN_KEYS.REFRESH_TOKEN, encryptedToken);
+    }
   },
 
   clearTokens: (): void => {

@@ -80,7 +80,7 @@ const SupervisorDashboard = () => {
           {!visits && !isFetchingNextPage && <Skeleton count={6} />}
 
           {visits.map((visit: VisitCardResponse) => (
-            <VisitCard key={visit.id} {...visit} />
+            <VisitCard key={visit?.id} {...visit} />
           ))}
         </div>
 

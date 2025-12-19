@@ -1,4 +1,4 @@
-import HomeVisits from '@features/HomeVisits';
+import HomeVisits from '@features/Caregiver/HomeVisits';
 
 const Home = () => {
   return <HomeVisits />;

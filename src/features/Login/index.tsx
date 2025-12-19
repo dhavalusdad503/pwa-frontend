@@ -1,9 +1,10 @@
 import { useLogin } from '@api/auth';
-import { tokenStorage } from '@api/tokenStorage';
+import { StorageType, tokenStorage } from '@api/tokenStorage';
 import { getDefaultRouteByRole } from '@config/defaultRoutes';
 import { ROUTES } from '@constant/routesPath';
 import { yupResolver } from '@hookform/resolvers/yup';
 import Button from '@lib/Common/Button';
+import CheckboxField from '@lib/Common/CheckBox';
 import Icon from '@lib/Common/Icon';
 import InputField from '@lib/Common/Input';
 import PasswordField from '@lib/Common/PasswordField';
@@ -30,16 +31,24 @@ const Login = () => {
   });
   const { mutateAsync: login, isPending: isLoginPending } = useLogin();
 
-  const handleFormSubmit: SubmitHandler<LoginSchemaType> = async (
+  const handleFormSubmit: SubmitHandler<LoginSchemaType & {rememberMe: boolean}> = async (
     credentials
   ) => {
-    const response = await login(credentials);
+
+    const payload = {
+      email: credentials.email,
+      password: credentials.password
+    }
+
+    const response = await login(payload);
     const { success, data } = response;
     if (success && data) {
       const { user, token, refreshToken } = data;
       if (token) {
-        await tokenStorage.setTokens({ accessToken: token });
-        if (refreshToken) await tokenStorage.setRefreshToken(refreshToken);
+        const storageType: StorageType = credentials.rememberMe ? 'localStorage' : 'sessionStorage';
+
+        await tokenStorage.setTokens({ accessToken: token }, storageType);
+        if (refreshToken) await tokenStorage.setRefreshToken(refreshToken, storageType);
         dispatchSetUser({ ...user, token, refreshToken });
         navigate(getDefaultRouteByRole(user?.role?.name));
       }
@@ -90,6 +99,13 @@ const Login = () => {
             />
 
             <div className="flex items-center justify-between">
+              <CheckboxField
+                parentClassName='w-full'
+                className="font-bold text-primary !p-0"
+                label="Remember Me"
+                register={register}
+                name="rememberMe"
+              />
               <Button
                 type="button"
                 variant="none"

@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 
 import { useLocalVisits } from '@api/newShift';
 import { ROUTES } from '@constant/routesPath';
-import AppointmentCard from '@features/HomeVisits/AppointmentCard';
+import AppointmentCard from '@features/Caregiver/HomeVisits/AppointmentCard';
 import { useDataTable } from '@hooks/useDataTable';
 import { useOfflineSync } from '@hooks/useOfflineFormSync';
 import Button from '@lib/Common/Button';

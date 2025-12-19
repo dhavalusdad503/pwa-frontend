@@ -24,6 +24,8 @@ const useSuperVisorDashboard = () => {
   const [isVisible, setIsVisible] = useState(false);
   const [filters, setFilters] = useState<FilterDataType>({});
 
+  const columns = ['id','serviceType','notes','createdAt','updatedAt','address'];
+
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
     useInfiniteVisitsQuery({
       ...(filters?.caregiver ? { caregiverId: filters.caregiver?.value } : {}),
@@ -33,7 +35,8 @@ const useSuperVisorDashboard = () => {
         : {}),
       ...(filters?.dateRange?.endDate
         ? { endDate: filters?.dateRange?.endDate }
-        : {})
+        : {}),
+      columns
     });
 
   const loaderRef = useRef<HTMLDivElement>(null);
@@ -84,7 +87,7 @@ const useSuperVisorDashboard = () => {
   const visits = useMemo(
     () =>
       (data as InfiniteQueryResponse<VisitCardResponse>)?.pages.flatMap(
-        (page) => page.data
+        (page) => page
       ) ?? [],
     [data]
   );

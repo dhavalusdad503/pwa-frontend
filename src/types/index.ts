@@ -20,7 +20,7 @@ export type UpdatedShiftType = {
 };
 
 export interface InfinitePageResponse<T> {
-  data: T[];
+  rows: T[];
   total: number;
   hasMore: boolean;
 }

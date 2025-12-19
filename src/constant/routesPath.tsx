@@ -7,17 +7,17 @@ import VisitsPage from '@pages/Admin/Visits';
 import { type RouteObject } from 'react-router-dom';
 import CreateUserPage from '@pages/Admin/CreateUser';
 
-const Dashboard = lazy(() => import('@pages/Dashboard'));
-const Login = lazy(() => import('@pages/Login'));
-const HomeVisits = lazy(() => import('@pages/HomeVisit'));
-const NewShift = lazy(() => import('@pages/NewShift'));
+const Dashboard = lazy(() => import('@pages/Common/Dashboard'));
+const Login = lazy(() => import('@pages/Common/Login'));
+const HomeVisits = lazy(() => import('@pages/Caregiver/HomeVisit'));
+const NewShift = lazy(() => import('@pages/Caregiver/NewShift'));
 const Root = lazy(() => import('@pages/Root'));
 const ForgetPassword = lazy(
-  () => import('@pages/ForgetPassword/ForgetPasswordPage')
+  () => import('@pages/Common/ForgetPassword/ForgetPasswordPage')
 );
 // const OtpConfirmation = lazy(() => import('@pages/ForgetPassword/OtpConfirmationPage'))
 const ResetPassword = lazy(
-  () => import('@pages/ForgetPassword/ResetPasswordPage')
+  () => import('@pages/Common/ForgetPassword/ResetPasswordPage')
 );
 
 const SupervisorsPage = lazy(() => import('@pages/Admin/Supervisors'));
@@ -136,7 +136,7 @@ export const ROUTES: RoutesType = {
     path: '/admin/visits',
     routeType: 'authenticate',
     headerName: 'Visits',
-    element: <VisitsPage isDashboard/>
+    element: <VisitsPage />
   },
   ADMIN_CAREGIVERS: {
     path: '/admin/caregivers',

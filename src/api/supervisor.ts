@@ -6,27 +6,21 @@ import { combineName } from '@helper/index';
 import { InfinitePageResponse } from '@/types';
 
 import { VisitCardResponse } from './types/supervisor.dto';
+import { visitRepository } from './repositories';
 
 export const useInfiniteVisitsQuery = (param?: object) => {
   return useInfiniteQuery<InfinitePageResponse<VisitCardResponse>>({
     queryKey: supervisorQueryKeyMap.visitsListsBySupervisor({ param }),
     queryFn: async ({ pageParam = 1 }) => {
-      const res = await axiosGet(`/visit`, {
-        params: {
-          ...param,
-          page: pageParam,
-          limit: 20
-        }
+      const response = await visitRepository.getAll({
+        ...param,
+        page: pageParam,
+        limit: 20
       });
-      const pageData = res.data.data.data || [];
-      const total = res.data.data.total || 0;
-
-      return {
-        data: pageData,
-        total,
-        hasMore: pageData.length > 0 && pageParam * 20 < total
-      };
+      console.log("this is response data",response.data);
+      return response.data.rows;
     },
+   
     getNextPageParam: (lastPage, allPages) => {
       if (!lastPage.hasMore || lastPage.data.length === 0) return undefined;
       return allPages.length + 1;
