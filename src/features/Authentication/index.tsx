@@ -68,10 +68,10 @@ const Login = () => {
 
           <div className="flex flex-col gap-2.5 w-full items-center ">
             <h4 className="text-2xl font-bold text-blackdark">
-              Sign In to your Account
+              Login
             </h4>
             <p className="text-base font-normal text-blackdark/60">
-              Welcome Back! Please Enter Your Detail
+              Secure access to Home Visit Attestation System
             </p>
           </div>
 
@@ -80,7 +80,7 @@ const Login = () => {
               name="email"
               register={register}
               type="email"
-              label="Email"
+              label="Email / Username"
               placeholder="Email"
               icon="email"
               iconFirst
@@ -102,7 +102,7 @@ const Login = () => {
               <CheckboxField
                 parentClassName='w-full'
                 className="font-bold text-primary !p-0"
-                label="Remember Me"
+                label="Keep me signed in"
                 register={register}
                 name="rememberMe"
               />
@@ -121,7 +121,7 @@ const Login = () => {
               type="submit"
               variant="filled"
               isLoading={isLoginPending}
-              title={isLoginPending ? 'Signing In...' : 'Sign In'}
+              title={isLoginPending ? 'Signing In...' : 'Sign In Securely'}
               className="w-full rounded-10px ! !font-bold !leading-5"
               isDisabled={isLoginPending}
               onClick={handleSubmit(handleFormSubmit)}

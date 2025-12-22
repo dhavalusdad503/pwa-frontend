@@ -1,4 +1,4 @@
-import ForgetPassword from "@features/ForgetPassword/ForgetPassword";
+import ForgetPassword from "@features/Authentication/Components/ForgetPassword";
 
 const ForgetPasswordPage = () => {
     return (<ForgetPassword />)

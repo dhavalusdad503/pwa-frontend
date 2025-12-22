@@ -11,6 +11,8 @@ export interface SidebarMenuItem {
 }
 
 export const sidebarMenuItems: SidebarMenuItem[] = [
+
+  //Admin
   {
     icon: 'dashboard',
     label: 'Dashboard',
@@ -46,6 +48,21 @@ export const sidebarMenuItems: SidebarMenuItem[] = [
     label: 'System Settings',
     path: ROUTES.ADMIN_SYSTEM_SETTINGS.path,
     roles: [USER_ROLE.ADMIN]
+  },
+
+
+  //Caregiver
+  {
+    icon: 'dashboard',
+    label: 'Dashboard',
+    path: ROUTES.CAREGIVER_DASHBOARD.path,
+    roles: [USER_ROLE.CAREGIVER]
+  },
+  {
+    icon: 'list',
+    label: 'Patients History',
+    path: ROUTES.HOME_VISIT.path,
+    roles: [USER_ROLE.CAREGIVER]
   },
   
 ];

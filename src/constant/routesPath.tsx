@@ -6,6 +6,7 @@ import SystemSettingsPage from '@pages/Admin/SystemSettings';
 import VisitsPage from '@pages/Admin/Visits';
 import { type RouteObject } from 'react-router-dom';
 import CreateUserPage from '@pages/Admin/CreateUser';
+import AuthenticationPage from '@pages/Common/Authentication';
 
 const Dashboard = lazy(() => import('@pages/Common/Dashboard'));
 const Login = lazy(() => import('@pages/Common/Login'));
@@ -78,13 +79,14 @@ export const ROUTES: RoutesType = {
     path: '/login',
     routeType: 'un-authenticate',
     headerName: 'Login',
-    element: <Login />
+    element: <AuthenticationPage />
   },
   FORGET_PASSWORD: {
     path: '/forget-password',
     routeType: 'un-authenticate',
     headerName: 'Forget Password',
-    element: <ForgetPassword />
+    // element: <ForgetPassword />
+    element: <AuthenticationPage />
   },
   // OTP_CONFIRMATION: {
   //   path: '/otp-confirmation',
@@ -96,7 +98,8 @@ export const ROUTES: RoutesType = {
     path: '/reset-password',
     routeType: 'un-authenticate',
     headerName: 'Reset Password',
-    element: <ResetPassword />
+    // element: <ResetPassword />
+    element: <AuthenticationPage />
   },
   CAREGIVER_DASHBOARD: {
     path: '/caregiver/dashboard',

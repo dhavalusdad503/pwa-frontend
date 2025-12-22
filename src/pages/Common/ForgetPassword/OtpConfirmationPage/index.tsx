@@ -1,4 +1,4 @@
-import OtpConfirmation from "@features/ForgetPassword/OtpConfirmation"
+import OtpConfirmation from "@features/Authentication/Components/OtpConfirmation"
 
 const OtpConfirmationPage = () => {
 

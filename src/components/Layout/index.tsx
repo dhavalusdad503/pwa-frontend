@@ -34,12 +34,12 @@ const Layout = ({ children }: PropsWithChildren) => {
   return (
     <>
       <div className="flex bg-surfacelight h-screen">
-        {role?.name === USER_ROLE.ADMIN && (
+        {/* {role?.name === USER_ROLE.ADMIN && ( */}
           <Sidebar
             toggleSidebar={toggleSidebar}
             isSidebarOpen={isSidebarOpen}
           />
-        )}
+        {/* )} */}
         <div
           className={clsx(
             'relative h-full flex flex-col flex-1 overflow-hidden transition-all duration-300 ease-in-out',
